@@ -99,37 +99,14 @@
        document.addEventListener('snipcart.ready', () => {
     // This is the final, correct code for your payment method
 Snipcart.api.payment.registerPaymentMethod({
-    id: 'deferred-payment', // This matches the feature you just enabled
+    id: 'deferred-payment',
     name: 'GCash / Maya / Bank Transfer',
     description: 'Pay manually using local e-wallets or bank deposit.',
-    instructions: function() {
-        return `
-            <div class="snipcart-payment-card-form">
-                <div class="snipcart-form">
-                    <div class="snipcart-form__body">
-                        <h3 class="font-bold text-lg mb-2">Payment Instructions</h3>
-                        <p class="mb-4">To complete your purchase, please follow the instructions below.</p>
-                        
-                        <div class="mb-4 p-4 bg-gray-100 rounded">
-                            <strong class="text-gray-800">GCash / Maya:</strong>
-                            <p>Name: [YOUR FULL NAME]</p>
-                            <p>Number: [YOUR GCASH/MAYA NUMBER]</p>
-                        </div>
-                        
-                        <div class="p-4 bg-gray-100 rounded">
-                            <strong class="text-gray-800">BPI Bank Transfer:</strong>
-                            <p>Account Name: [YOUR BANK ACCOUNT NAME]</p>
-                            <p>Account Number: [YOUR BPI ACCOUNT NUMBER]</p>
-                        </div>
 
-                        <hr class="my-4"/>
-                        
-                        <p class="font-bold text-red-600">IMPORTANT:</p>
-                        <p>After paying, please email a screenshot of your transaction receipt to <strong>support@taxspecialista.com</strong> with your Order Number in the subject line. We will process your order upon verification.</p>
-                    </div>
-                </div>
-            </div>
-        `;
+    // --- THIS IS THE TEST ---
+    instructions: function() {
+        // We are replacing the complex HTML with a simple text string.
+        return 'TEST INSTRUCTIONS: Please pay via GCash to 09123456789. Email proof to support@taxspecialista.com.';
     }
 });
         });
