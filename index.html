@@ -97,14 +97,12 @@
     </script>
     <script>
        document.addEventListener('snipcart.ready', () => {
-    Snipcart.api.payment.registerPaymentMethod({
-    id: 'snipcart-payment-form',
+    // This is the final, correct code for your payment method
+Snipcart.api.payment.registerPaymentMethod({
+    id: 'deferred-payment', // This matches the feature you just enabled
     name: 'GCash / Maya / Bank Transfer',
     description: 'Pay manually using local e-wallets or bank deposit.',
-
-    // This is the corrected function
     instructions: function() {
-        // It now returns the HTML string directly
         return `
             <div class="snipcart-payment-card-form">
                 <div class="snipcart-form">
