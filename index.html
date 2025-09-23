@@ -98,18 +98,42 @@
     <script>
        document.addEventListener('snipcart.ready', () => {
     Snipcart.api.payment.registerPaymentMethod({
-        id: 'custom-manual-payment', // Changed from 'manual-payment'
-        name: 'GCash / Maya / Bank Transfer',
-        description: 'Pay manually using local e-wallets or bank deposit.',
-        getPaymentForm: function() {
-            return {
-                html: `
-                    <div class="snipcart-payment-card-form">
+    id: 'custom-manual-payment',
+    name: 'GCash / Maya / Bank Transfer',
+    description: 'Pay manually using local e-wallets or bank deposit.',
+
+    // This is the corrected function
+    instructions: function() {
+        // It now returns the HTML string directly
+        return `
+            <div class="snipcart-payment-card-form">
+                <div class="snipcart-form">
+                    <div class="snipcart-form__body">
+                        <h3 class="font-bold text-lg mb-2">Payment Instructions</h3>
+                        <p class="mb-4">To complete your purchase, please follow the instructions below.</p>
+                        
+                        <div class="mb-4 p-4 bg-gray-100 rounded">
+                            <strong class="text-gray-800">GCash / Maya:</strong>
+                            <p>Name: [YOUR FULL NAME]</p>
+                            <p>Number: [YOUR GCASH/MAYA NUMBER]</p>
                         </div>
-                `
-                    };
-                }
-            });
+                        
+                        <div class="p-4 bg-gray-100 rounded">
+                            <strong class="text-gray-800">BPI Bank Transfer:</strong>
+                            <p>Account Name: [YOUR BANK ACCOUNT NAME]</p>
+                            <p>Account Number: [YOUR BPI ACCOUNT NUMBER]</p>
+                        </div>
+
+                        <hr class="my-4"/>
+                        
+                        <p class="font-bold text-red-600">IMPORTANT:</p>
+                        <p>After paying, please email a screenshot of your transaction receipt to <strong>support@taxspecialista.com</strong> with your Order Number in the subject line. We will process your order upon verification.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+});
         });
     </script>
 
