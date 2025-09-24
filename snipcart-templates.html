@@ -4,28 +4,20 @@
 <body>
   <div id="snipcart-templates">
 
-    <!-- Insert a block at the bottom of the Payment section -->
-    <payment section="bottom">
-      <!-- Show only for the built-in deferred payment method -->
+    <!-- Renders at the top of the Payment step -->
+    <payment section="top">
       <div v-if="paymentSession && paymentSession.paymentMethod === 'deferred_payment'"
-           class="snipcart__box" style="margin-top:1rem;">
-        <div class="snipcart__box--header">
-          <div class="snipcart__box--title">
-            <h3 class="snipcart__font--subtitle">
-              {{ $localize('payment.form.deferred_payment_title') }}
-            </h3>
-          </div>
-        </div>
-
+           class="snipcart__box" style="margin-bottom:1rem;">
         <div class="snipcart__box--content snipcart__font--std">
-          <!-- Your plain-text instructions from localization (optional) -->
+
+          <!-- Use the FULL localization key path -->
           <p class="snipcart__font--small" style="margin-bottom:0.75rem;">
-            {{ $localize('deferred_payment_instructions') }}
+            {{ $localize('payment.form.deferred_payment_instructions') }}
           </p>
 
           <!-- QR rows -->
           <div class="snipcart__box" style="padding:1rem;">
-            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-start;">
               <!-- GCash -->
               <div style="flex:1 1 220px; text-align:center;">
                 <h4 class="snipcart__font--tiny" style="margin-bottom:0.5rem;">Pay via GCash</h4>
