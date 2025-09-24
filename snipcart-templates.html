@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Snipcart Templates</title></head>
+<body>
+  <div id="snipcart-templates">
+
+    <!-- Insert a block at the bottom of the Payment section -->
+    <payment section="bottom">
+      <!-- Show only for the built-in deferred payment method -->
+      <div v-if="paymentSession && paymentSession.paymentMethod === 'deferred_payment'"
+           class="snipcart__box" style="margin-top:1rem;">
+        <div class="snipcart__box--header">
+          <div class="snipcart__box--title">
+            <h3 class="snipcart__font--subtitle">
+              {{ $localize('payment.form.deferred_payment_title') }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="snipcart__box--content snipcart__font--std">
+          <!-- Your plain-text instructions from localization (optional) -->
+          <p class="snipcart__font--small" style="margin-bottom:0.75rem;">
+            {{ $localize('deferred_payment_instructions') }}
+          </p>
+
+          <!-- QR rows -->
+          <div class="snipcart__box" style="padding:1rem;">
+            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+              <!-- GCash -->
+              <div style="flex:1 1 220px; text-align:center;">
+                <h4 class="snipcart__font--tiny" style="margin-bottom:0.5rem;">Pay via GCash</h4>
+                <img src="/assets/gcash-qr.png" alt="GCash QR code"
+                     style="max-width:220px; width:100%; height:auto; border-radius:8px;" />
+                <div class="snipcart__font--tiny" style="margin-top:0.5rem;">
+                  <div><strong>GCash Name:</strong> TaxSpecialista</div>
+                  <div><strong>GCash #:</strong> 0912 345 6789</div>
+                </div>
+              </div>
+
+              <!-- Bank Transfer -->
+              <div style="flex:1 1 220px; text-align:center;">
+                <h4 class="snipcart__font--tiny" style="margin-bottom:0.5rem;">Bank Transfer</h4>
+                <img src="/assets/bank-qr.png" alt="Bank QR code"
+                     style="max-width:220px; width:100%; height:auto; border-radius:8px;" />
+                <div class="snipcart__font--tiny" style="margin-top:0.5rem;">
+                  <div><strong>Bank:</strong> BPI</div>
+                  <div><strong>Acct Name:</strong> TaxSpecialista Inc.</div>
+                  <div><strong>Acct No.:</strong> 1234-5678-90</div>
+                </div>
+              </div>
+            </div>
+
+            <p class="snipcart__font--tiny" style="margin-top:0.75rem;">
+              After paying, email your proof to <a href="mailto:support@taxspecialista.com">support@taxspecialista.com</a>
+              and include your Order # from the confirmation page.
+            </p>
+          </div>
+        </div>
+      </div>
+    </payment>
+
+  </div>
+</body>
+</html>
