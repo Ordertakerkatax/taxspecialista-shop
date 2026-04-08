@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Emelino T. Maestro - TaxSpecialista Resources</title>
+    <meta name="description" content="Meet Emelino T. Maestro, CPA — founder of TaxSpecialista Resources with over 40 years of experience in Philippine tax compliance and taxpayer advocacy.">
+    <meta property="og:title" content="About Emelino T. Maestro - TaxSpecialista Resources">
+    <meta property="og:description" content="Meet the CPA with 40+ years of experience simplifying Philippine tax compliance.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://shop.taxspecialista.com/assets/ETM-profile.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -22,9 +28,21 @@
 <body class="bg-gray-50 text-gray-800">
 
     <header class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl font-bold text-gray-900">TaxSpecialista Resources</h1>
-            <p class="mt-2 text-lg text-gray-600">Simplifying Philippine Tax Compliance</p>
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">TaxSpecialista Resources</h1>
+                <p class="mt-2 text-lg text-gray-600">Simplifying Philippine Tax Compliance</p>
+            </div>
+            <nav class="mt-4 flex justify-center gap-2 sm:gap-4" aria-label="Main navigation">
+                <a href="/" class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-teal-600 hover:text-white transition-colors">Home</a>
+                <a href="/about.html" class="px-4 py-2 rounded-full bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors">About</a>
+                <a href="/contact.html" class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-teal-600 hover:text-white transition-colors">Contact</a>
+                <a href="/terms.html" class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-teal-600 hover:text-white transition-colors">Terms</a>
+                <a href="/#cart" class="px-4 py-2 rounded-full bg-gray-800 text-white text-sm font-medium hover:bg-gray-900 transition-colors flex items-center gap-2" aria-label="Shopping cart">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"></path></svg>
+                    Cart
+                </a>
+            </nav>
         </div>
     </header>
 
@@ -66,17 +84,33 @@
         </div>
     </main>
 
-    <footer class="bg-white mt-12">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
-            <p>&copy; 2025 TaxSpecialista Resources. All Rights Reserved.</p>
-            <p class="mt-1">For inquiries, contact us at: <a href="mailto:support@shop.taxspecialista.com"
-                    class="text-teal-600 hover:underline">support@shop.taxspecialista.com</a></p>
-            <p class="mt-1">
-                <a href="/" class="text-gray-500 hover:underline">Home</a> |
-                <a href="/about.html" class="text-gray-500 hover:underline">About</a> |
-                <a href="/contact.html" class="text-gray-500 hover:underline">Contact</a> |
-                <a href="/terms.html" class="text-gray-500 hover:underline">Terms & Privacy</a>
-            </p>
+    <footer class="bg-gray-800 mt-12 text-gray-300">
+        <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center sm:text-left">
+                <div>
+                    <h3 class="text-white font-semibold mb-3">TaxSpecialista Resources</h3>
+                    <p class="text-sm">Simplifying Philippine Tax Compliance with expert tools and services.</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-3">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/" class="hover:text-teal-400 transition-colors">Home</a></li>
+                        <li><a href="/about.html" class="hover:text-teal-400 transition-colors">About</a></li>
+                        <li><a href="/contact.html" class="hover:text-teal-400 transition-colors">Contact</a></li>
+                        <li><a href="/terms.html" class="hover:text-teal-400 transition-colors">Terms & Privacy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-3">Get In Touch</h3>
+                    <p class="text-sm">
+                        <a href="mailto:support@shop.taxspecialista.com" class="text-teal-400 hover:underline">support@shop.taxspecialista.com</a>
+                    </p>
+                    <p class="text-sm mt-2">We respond within one business day.</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm">
+                <p>&copy; 2026 TaxSpecialista Resources. All Rights Reserved.</p>
+            </div>
         </div>
     </footer>
 
