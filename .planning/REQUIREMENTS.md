@@ -96,13 +96,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmapper) | | |
+| PAY-01 | Phase 1 | Pending |
+| PAY-02 | Phase 1 | Pending |
+| INTK-01 | Phase 2 | Pending |
+| INTK-02 | Phase 2 | Pending |
+| INTK-03 | Phase 2 | Pending |
+| ADV-01 | Phase 2 | Pending |
+| ADV-02 | Phase 2 | Pending |
+| ADV-03 | Phase 2 | Pending |
+| ADV-04 | Phase 2 | Pending |
+| DL-01 | Phase 3 | Pending |
+| DL-02 | Phase 3 | Pending |
+| DL-03 | Phase 3 | Pending |
+| DOC-01 | Phase 4 | Pending |
+| DOC-02 | Phase 4 | Pending |
+| ESC-01 | Phase 5 | Pending |
+| ESC-02 | Phase 5 | Pending |
+| ESC-03 | Phase 5 | Pending |
+| ACCT-01 | Phase 6 | Pending |
+| ACCT-02 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-09*
-*Last updated: 2026-04-09 after initial definition*
+*Last updated: 2026-04-09 after roadmap creation — all 18 requirements mapped*
