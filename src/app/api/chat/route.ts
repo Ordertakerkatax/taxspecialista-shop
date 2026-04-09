@@ -1,4 +1,4 @@
-import { streamText } from "ai";
+import { streamText, convertToModelMessages, type UIMessage } from "ai";
 import { anthropic, CHAT_MODEL, MAX_MESSAGES_BASIC, MAX_MESSAGES_COMPREHENSIVE } from "@/lib/ai/chat-config";
 import { buildSystemPrompt } from "@/lib/ai/system-prompt";
 import { validateSession } from "@/lib/session";
@@ -50,21 +50,30 @@ export async function POST(req: Request) {
   }
 
   // Save the latest user message
-  const lastUserMessage = messages[messages.length - 1];
+  // In AI SDK v6, messages are UIMessage[] with parts array instead of content string
+  const lastUserMessage = messages[messages.length - 1] as UIMessage | undefined;
   if (lastUserMessage && lastUserMessage.role === "user") {
-    await db.insert(chatMessages).values({
-      sessionId: session.id,
-      role: "user",
-      content: lastUserMessage.content,
-    });
+    const textPart = lastUserMessage.parts?.find(
+      (p: { type: string }) => p.type === "text"
+    ) as { type: "text"; text: string } | undefined;
+    const userContent = textPart?.text ?? "";
+    if (userContent) {
+      await db.insert(chatMessages).values({
+        sessionId: session.id,
+        role: "user",
+        content: userContent,
+      });
+    }
   }
 
   const systemPrompt = buildSystemPrompt(tier);
+  // Convert UIMessage[] (v6 format) to ModelMessage[] for streamText
+  const modelMessages = await convertToModelMessages(messages as UIMessage[]);
 
   const result = streamText({
     model: anthropic(CHAT_MODEL),
     system: systemPrompt,
-    messages,
+    messages: modelMessages,
     onFinish: async ({ text }) => {
       // Save assistant response after streaming completes
       await db.insert(chatMessages).values({
