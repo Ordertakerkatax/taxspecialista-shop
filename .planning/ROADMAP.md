@@ -49,11 +49,11 @@ Plans:
   3. System checks and communicates LOA validity issues (authority, scope, dates, proper issuance)
   4. Every advisory response cites specific NIRC sections, RMOs, or RRs applicable to the situation
   5. Response includes a disclaimer that output is not formal legal or tax advice before final guidance is shown
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 02-01-PLAN.md — Chat backend: schema, LOA system prompt, streaming API route with session validation
-- [ ] 02-02-PLAN.md — Chat frontend: WhatsApp-style UI components, consultation page integration, human verification
+- [x] 02-01-PLAN.md — Chat backend: schema, LOA system prompt, streaming API route with session validation
+- [x] 02-02-PLAN.md — Chat frontend: WhatsApp-style UI components, consultation page integration, human verification
 
 **UI hint**: yes
 
@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Payment Gate | 3/3 | Complete   | 2026-04-09 |
-| 2. Chat Core & Advisory | 0/2 | Planning complete | - |
+| 2. Chat Core & Advisory | 2/2 | Human verify pending | 2026-04-09 |
 | 3. Deadline & Legal Precision | 0/TBD | Not started | - |
 | 4. Document Generation | 0/TBD | Not started | - |
 | 5. Escalation & Admin | 0/TBD | Not started | - |
