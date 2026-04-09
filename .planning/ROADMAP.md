@@ -30,7 +30,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can submit a bank transfer confirmation and receive a session token that unlocks the chat
   3. Attempting to access the chat without a valid session token returns a payment-required screen
   4. Admin can see incoming payment submissions and manually verify them
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold Next.js app, DB schema, shared libs, middleware, tests
+- [ ] 01-02-PLAN.md — Landing page with pricing tiers, payment submission flow
+- [ ] 01-03-PLAN.md — Admin payment dashboard, consultation session gate
+
 **UI hint**: yes
 
 ### Phase 2: Chat Core & Advisory
@@ -95,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Payment Gate | 0/TBD | Not started | - |
+| 1. Foundation & Payment Gate | 0/3 | Not started | - |
 | 2. Chat Core & Advisory | 0/TBD | Not started | - |
 | 3. Deadline & Legal Precision | 0/TBD | Not started | - |
 | 4. Document Generation | 0/TBD | Not started | - |
