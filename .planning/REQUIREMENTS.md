@@ -9,8 +9,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Payment & Access
 
-- [ ] **PAY-01**: User can pay for consultation via GCash (manual payment verification)
-- [ ] **PAY-02**: User can pay for consultation via bank transfer
+- [x] **PAY-01**: User can pay for consultation via GCash (manual payment verification)
+- [x] **PAY-02**: User can pay for consultation via bank transfer
 
 ### Case Intake
 
@@ -96,8 +96,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PAY-01 | Phase 1 | Pending |
-| PAY-02 | Phase 1 | Pending |
+| PAY-01 | Phase 1 | Complete |
+| PAY-02 | Phase 1 | Complete |
 | INTK-01 | Phase 2 | Pending |
 | INTK-02 | Phase 2 | Pending |
 | INTK-03 | Phase 2 | Pending |

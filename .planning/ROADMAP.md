@@ -12,7 +12,7 @@ The product ships in six phases. Phase 1 lays the technical foundation and opens
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Payment Gate** - Next.js app, database, Clerk auth, manual GCash/bank payment flow with session creation
+- [x] **Phase 1: Foundation & Payment Gate** - Next.js app, database, Clerk auth, manual GCash/bank payment flow with session creation (completed 2026-04-09)
 - [ ] **Phase 2: Chat Core & Advisory** - Conversational intake, BIR stage identification, LOA advisory, legal citations, actionable steps, disclaimers
 - [ ] **Phase 3: Deadline & Legal Precision** - Deadline display, deterministic prescription calculator, BIR waiver validity checker
 - [ ] **Phase 4: Document Generation** - Draft protest letter and compliance reply generation with DRAFT watermark
@@ -30,12 +30,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can submit a bank transfer confirmation and receive a session token that unlocks the chat
   3. Attempting to access the chat without a valid session token returns a payment-required screen
   4. Admin can see incoming payment submissions and manually verify them
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold Next.js app, DB schema, shared libs, middleware, tests
-- [ ] 01-02-PLAN.md — Landing page with pricing tiers, payment submission flow
-- [ ] 01-03-PLAN.md — Admin payment dashboard, consultation session gate
+- [x] 01-01-PLAN.md — Scaffold Next.js app, DB schema, shared libs, middleware, tests
+- [x] 01-02-PLAN.md — Landing page with pricing tiers, payment submission flow
+- [x] 01-03-PLAN.md — Admin payment dashboard, consultation session gate
 
 **UI hint**: yes
 
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Payment Gate | 0/3 | Not started | - |
+| 1. Foundation & Payment Gate | 3/3 | Complete   | 2026-04-09 |
 | 2. Chat Core & Advisory | 0/TBD | Not started | - |
 | 3. Deadline & Legal Precision | 0/TBD | Not started | - |
 | 4. Document Generation | 0/TBD | Not started | - |

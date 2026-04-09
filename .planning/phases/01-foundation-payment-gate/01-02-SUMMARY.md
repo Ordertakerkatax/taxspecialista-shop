@@ -102,6 +102,14 @@ All landing page sections implemented as server components (except `PricingTiers
 - **Fix:** Parallel agent added `force-dynamic` to `src/app/consult/[sessionId]/page.tsx`
 - **Note:** Fixed concurrently by parallel agent
 
+**4. [Rule 1 - Bug] neon() throws at module load when DATABASE_URL is unset**
+- **Found during:** Task 2 build verification
+- **Issue:** `neon(process.env.DATABASE_URL!)` throws at module evaluation during Next.js build page data collection, not at query time
+- **Fix:** Use `DATABASE_URL ?? "postgresql://placeholder:placeholder@placeholder/placeholder"` so neon() receives a valid-format string; runtime DB errors only occur when a query runs without DATABASE_URL set
+- **Files modified:** `src/db/index.ts`
+- **Verification:** `npm run build` succeeds with all 7 routes generated
+- **Commit:** `5a89624f`
+
 ---
 
 ## Known Stubs
