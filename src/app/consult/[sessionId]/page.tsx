@@ -3,10 +3,14 @@ import { PRICING_TIERS } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { AlertCircle, MessageCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { db } from "@/db";
+import { chatMessages } from "@/db/schema";
+import { eq, asc } from "drizzle-orm";
+import { ChatInterface } from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +24,7 @@ interface ConsultPageProps {
   params: Promise<{ sessionId: string }>;
 }
 
+// Keep for potential future use (e.g., email templates, tooltips)
 function formatExpiry(date: Date): string {
   return new Intl.DateTimeFormat("en-PH", {
     year: "numeric",
@@ -31,110 +36,68 @@ function formatExpiry(date: Date): string {
   }).format(new Date(date));
 }
 
+// Suppress unused warning — kept intentionally for future use
+void formatExpiry;
+
 export default async function ConsultPage({ params }: ConsultPageProps) {
   const { sessionId } = await params;
   const result = await validateSession(sessionId);
 
-  // State 1: Valid (active) session
+  // State 1: Valid (active) session — show live chat
   if (result.reason === "active") {
     const { session } = result;
-    const tierInfo =
-      PRICING_TIERS[session.tier as keyof typeof PRICING_TIERS] ??
-      PRICING_TIERS.basic;
+    // Verify tier is a valid key (fallback to basic)
+    void (PRICING_TIERS[session.tier as keyof typeof PRICING_TIERS] ?? PRICING_TIERS.basic);
+
+    const existingMessages = await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.sessionId, session.id))
+      .orderBy(asc(chatMessages.createdAt));
 
     return (
-      <div className="min-h-screen bg-gray-50 flex items-start justify-center px-4 py-16">
-        <div className="w-full max-w-[768px]">
-          <Card className="bg-white shadow-sm">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-3 mb-2">
-                <MessageCircle className="h-8 w-8 text-teal-600" />
-                <CardTitle className="text-2xl font-semibold text-gray-900">
-                  Your Consultation is Ready
-                </CardTitle>
-              </div>
-              <Badge className="w-fit bg-green-100 text-green-800 border-green-200">
-                Session Active
-              </Badge>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-sm">
-                  {tierInfo.name}
-                </Badge>
-              </div>
-
-              <div className="rounded-md bg-gray-50 border border-gray-200 p-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Email</span>
-                  <span className="font-medium text-gray-900">{session.email}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Session expires at</span>
-                  <span className="font-medium text-gray-900">
-                    {formatExpiry(session.expiresAt)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="rounded-md bg-teal-50 border border-teal-200 p-4">
-                <p className="text-teal-800 text-sm">
-                  Chat functionality is coming in Phase 2. Your session is active and ready.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="min-h-screen bg-gray-50 p-4">
+        <ChatInterface
+          sessionToken={sessionId}
+          sessionId={session.id}
+          tier={session.tier as "basic" | "comprehensive"}
+          initialMessages={existingMessages.map((m) => ({
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          }))}
+          readOnly={false}
+        />
       </div>
     );
   }
 
-  // State 2: Expired session
+  // State 2: Expired session — show read-only chat history
   if (result.reason === "expired") {
+    const expiredMessages = await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.sessionId, result.session.id))
+      .orderBy(asc(chatMessages.createdAt));
+
     return (
-      <div className="min-h-screen bg-gray-50 flex items-start justify-center px-4 py-16">
-        <div className="w-full max-w-[768px] space-y-4">
-          {/* Amber warning banner */}
-          <div className="rounded-md bg-amber-50 border border-amber-200 px-4 py-3 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0" />
-            <p className="text-amber-800 text-sm font-medium">
-              Session Expired
-            </p>
-          </div>
-
-          <Card className="bg-white shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-2xl font-semibold text-gray-900">
-                Session Expired
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600">
-                Your 24-hour consultation window has ended. You can still view your
-                conversation history below, but new messages cannot be sent.
-              </p>
-
-              {/* Placeholder for chat history */}
-              <div className="rounded-md bg-gray-50 border border-gray-200 p-6 text-center">
-                <p className="text-gray-400 text-sm">
-                  Conversation history will appear here.
-                </p>
-              </div>
-
-              <Link
-                href="/"
-                className={cn(buttonVariants({ variant: "default" }), "w-full sm:w-auto")}
-              >
-                Start a New Consultation
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="min-h-screen bg-gray-50 p-4">
+        <ChatInterface
+          sessionToken={sessionId}
+          sessionId={result.session.id}
+          tier={result.session.tier as "basic" | "comprehensive"}
+          initialMessages={expiredMessages.map((m) => ({
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          }))}
+          readOnly={true}
+        />
       </div>
     );
   }
 
-  // State 3: Invalid / not found session
+  // State 3: Invalid / not found session — payment-required screen (unchanged)
   return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center px-4 py-16">
       <div className="w-full max-w-[480px]">
@@ -149,12 +112,12 @@ export default async function ConsultPage({ params }: ConsultPageProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-gray-600">
-              This consultation requires a valid payment. If you have already paid,
-              check your email for the access link.
+              This consultation requires a valid payment. If you have already
+              paid, check your email for the access link.
             </p>
             <p className="text-gray-500 text-sm">
-              This consultation link is invalid. If you believe this is an error,
-              contact{" "}
+              This consultation link is invalid. If you believe this is an
+              error, contact{" "}
               <a
                 href="mailto:support@taxspecialista.com"
                 className="text-teal-600 hover:underline"
