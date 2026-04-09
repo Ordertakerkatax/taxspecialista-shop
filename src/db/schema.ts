@@ -28,3 +28,16 @@ export const consultationSessions = pgTable("consultation_sessions", {
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const messageRoleEnum = pgEnum("message_role", ["user", "assistant"]);
+
+export const chatMessages = pgTable("chat_messages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  sessionId: uuid("session_id").references(() => consultationSessions.id).notNull(),
+  role: messageRoleEnum("role").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type NewChatMessage = typeof chatMessages.$inferInsert;
