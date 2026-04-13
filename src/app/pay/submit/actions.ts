@@ -1,10 +1,13 @@
 "use server";
 
 import { db } from "@/db";
-import { paymentSubmissions } from "@/db/schema";
+import { paymentSubmissions, consultationSessions } from "@/db/schema";
+import { eq, and, gt } from "drizzle-orm";
 import { z } from "zod";
-import { sendPaymentReceivedEmail } from "@/lib/email";
+import { randomUUID } from "crypto";
+import { sendPaymentReceivedEmail, sendPaymentApprovedEmail } from "@/lib/email";
 import { PRICING_TIERS } from "@/lib/constants";
+import { SESSION_EXPIRY_HOURS } from "@/lib/constants";
 import { redirect } from "next/navigation";
 
 const submitPaymentSchema = z.object({
@@ -55,7 +58,24 @@ export async function submitPaymentProof(
     })
     .returning();
 
-  // Send admin notification email (D-04) — gracefully skip if Resend not configured
+  // Auto-approve check: amount matches tier, valid ref format, no duplicate, no recent submission
+  const autoApproveResult = await tryAutoApprove(submission);
+
+  if (autoApproveResult.approved) {
+    // Send approval email with consultation link
+    try {
+      await sendPaymentApprovedEmail(
+        submission.email,
+        autoApproveResult.sessionToken!,
+        autoApproveResult.expiresAt!
+      );
+    } catch (e) {
+      console.warn("[pay] Approval email skipped:", (e as Error).message);
+    }
+    redirect(`/pay-submitted?email=${encodeURIComponent(parsed.data.email)}&auto=1`);
+  }
+
+  // Manual review path — notify admin
   try {
     await sendPaymentReceivedEmail(submission);
   } catch (e) {
@@ -63,4 +83,102 @@ export async function submitPaymentProof(
   }
 
   redirect(`/pay-submitted?email=${encodeURIComponent(parsed.data.email)}`);
+}
+
+// --- Auto-approve logic ---
+
+/** GCash ref: 13 digits. Bank transfer: 10-20 alphanumeric. */
+const GCASH_REF_PATTERN = /^\d{13}$/;
+const BANK_REF_PATTERN = /^[A-Za-z0-9]{10,20}$/;
+
+type AutoApproveResult =
+  | { approved: true; sessionToken: string; expiresAt: Date }
+  | { approved: false; reason: string };
+
+async function tryAutoApprove(
+  submission: typeof paymentSubmissions.$inferSelect
+): Promise<AutoApproveResult> {
+  const tierKey = submission.tier as keyof typeof PRICING_TIERS;
+  const expectedAmount = PRICING_TIERS[tierKey].price;
+
+  // 1. Amount must match tier price exactly
+  if (submission.amountPhp !== expectedAmount) {
+    return { approved: false, reason: "amount_mismatch" };
+  }
+
+  // 2. Reference number must match expected format
+  const refValid =
+    submission.paymentMethod === "gcash"
+      ? GCASH_REF_PATTERN.test(submission.referenceNumber)
+      : BANK_REF_PATTERN.test(submission.referenceNumber);
+
+  if (!refValid) {
+    return { approved: false, reason: "invalid_ref_format" };
+  }
+
+  // 3. Reference number must not be a duplicate (excluding this submission)
+  const [duplicate] = await db
+    .select({ id: paymentSubmissions.id })
+    .from(paymentSubmissions)
+    .where(
+      and(
+        eq(paymentSubmissions.referenceNumber, submission.referenceNumber),
+        eq(paymentSubmissions.paymentMethod, submission.paymentMethod)
+      )
+    )
+    .limit(2);
+
+  // If we find more than just the current submission with this ref, it's a duplicate
+  const duplicateCheck = await db
+    .select({ id: paymentSubmissions.id })
+    .from(paymentSubmissions)
+    .where(
+      and(
+        eq(paymentSubmissions.referenceNumber, submission.referenceNumber),
+        eq(paymentSubmissions.paymentMethod, submission.paymentMethod)
+      )
+    );
+
+  if (duplicateCheck.length > 1) {
+    return { approved: false, reason: "duplicate_ref" };
+  }
+
+  // 4. Rate limit: no other submission from this email in the last hour
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const recentSubmissions = await db
+    .select({ id: paymentSubmissions.id })
+    .from(paymentSubmissions)
+    .where(
+      and(
+        eq(paymentSubmissions.email, submission.email),
+        gt(paymentSubmissions.createdAt, oneHourAgo)
+      )
+    );
+
+  if (recentSubmissions.length > 1) {
+    return { approved: false, reason: "rate_limited" };
+  }
+
+  // All checks passed — auto-approve
+  const now = new Date();
+  const sessionToken = randomUUID();
+  const expiresAt = new Date(now.getTime() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+
+  await db
+    .update(paymentSubmissions)
+    .set({ status: "approved", reviewedAt: now })
+    .where(eq(paymentSubmissions.id, submission.id));
+
+  await db.insert(consultationSessions).values({
+    paymentId: submission.id,
+    email: submission.email,
+    tier: submission.tier,
+    sessionToken,
+    activatedAt: now,
+    expiresAt,
+  });
+
+  console.log(`[auto-approve] Payment ${submission.id} auto-approved for ${submission.email}`);
+
+  return { approved: true, sessionToken, expiresAt };
 }

@@ -7,12 +7,13 @@ export const metadata: Metadata = {
 };
 
 interface PaySubmittedPageProps {
-  searchParams: Promise<{ email?: string }>;
+  searchParams: Promise<{ email?: string; auto?: string }>;
 }
 
 export default async function PaySubmittedPage({ searchParams }: PaySubmittedPageProps) {
   const resolvedParams = await searchParams;
   const email = resolvedParams.email ? decodeURIComponent(resolvedParams.email) : "";
+  const autoApproved = resolvedParams.auto === "1";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -23,22 +24,40 @@ export default async function PaySubmittedPage({ searchParams }: PaySubmittedPag
           </div>
 
           <h1 className="text-2xl font-semibold text-gray-900">
-            Payment Submitted Successfully
+            {autoApproved ? "Payment Verified" : "Payment Submitted Successfully"}
           </h1>
 
-          <p className="text-sm text-gray-600 leading-relaxed">
-            We have received your payment proof. You will receive an email at{" "}
-            {email ? (
-              <span className="font-semibold text-gray-900">{email}</span>
-            ) : (
-              "your email address"
-            )}{" "}
-            with your consultation link once your payment is verified. This typically takes a few hours during business hours.
-          </p>
-
-          <p className="text-sm text-gray-500">
-            You can safely close this page. Check your email for next steps.
-          </p>
+          {autoApproved ? (
+            <>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Your payment has been verified automatically. A consultation link has been sent to{" "}
+                {email ? (
+                  <span className="font-semibold text-gray-900">{email}</span>
+                ) : (
+                  "your email address"
+                )}
+                . Check your inbox to start your consultation now.
+              </p>
+              <p className="text-sm text-teal-600 font-medium">
+                Your 24-hour consultation session is now active.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                We have received your payment proof. You will receive an email at{" "}
+                {email ? (
+                  <span className="font-semibold text-gray-900">{email}</span>
+                ) : (
+                  "your email address"
+                )}{" "}
+                with your consultation link once your payment is verified. This typically takes a few hours during business hours.
+              </p>
+              <p className="text-sm text-gray-500">
+                You can safely close this page. Check your email for next steps.
+              </p>
+            </>
+          )}
 
           <div className="pt-2">
             <Link
