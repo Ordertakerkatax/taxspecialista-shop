@@ -1,3 +1,4 @@
+export { parseFlexibleDate } from "./parse-flexible-date";
 export { calculateDeadlines } from "./calculate-deadlines";
 export type { DeadlineInput, DeadlineResult, Deadline } from "./calculate-deadlines";
 export { calculatePrescription } from "./calculate-prescription";
