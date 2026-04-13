@@ -71,12 +71,11 @@ export interface ProtestLetterInput {
  * BIR correspondence types that can receive an acknowledgment letter.
  * Reglementary periods are fixed by law/issuance.
  */
-export type BirCorrespondenceType = "LOA" | "NIC" | "NOD" | "PAN" | "FAN" | "FDDA";
+export type BirCorrespondenceType = "LOA" | "NOD" | "PAN" | "FAN" | "FDDA";
 
 /** Fixed reglementary periods per correspondence type (in calendar days). */
 export const REGLEMENTARY_PERIODS: Record<BirCorrespondenceType, { days: number; basis: string }> = {
   LOA: { days: 120, basis: "RMO 44-2010 — LOA validity period from date of issuance" },
-  NIC: { days: 15, basis: "RMO 19-2007 — Response to Notice for Informal Conference" },
   NOD: { days: 15, basis: "RR 12-99, as amended — Response to Notice of Discrepancy" },
   PAN: { days: 15, basis: "NIRC Section 228 — Protest to Preliminary Assessment Notice" },
   FAN: { days: 30, basis: "NIRC Section 228 — Protest to Final Assessment Notice / Formal Letter of Demand" },
@@ -86,7 +85,6 @@ export const REGLEMENTARY_PERIODS: Record<BirCorrespondenceType, { days: number;
 /** Full labels for correspondence types. */
 export const CORRESPONDENCE_LABELS: Record<BirCorrespondenceType, string> = {
   LOA: "Letter of Authority",
-  NIC: "Notice for Informal Conference",
   NOD: "Notice of Discrepancy",
   PAN: "Preliminary Assessment Notice",
   FAN: "Final Assessment Notice / Formal Letter of Demand",
@@ -96,7 +94,6 @@ export const CORRESPONDENCE_LABELS: Record<BirCorrespondenceType, string> = {
 /** Predefined intended actions for acknowledgment letters. */
 export const INTENDED_ACTIONS: Record<BirCorrespondenceType, string> = {
   LOA: "comply with the audit requirements and submit the requested documents within the prescribed period",
-  NIC: "attend the informal conference and present the taxpayer's position on the proposed findings",
   NOD: "submit a written explanation addressing the discrepancies noted",
   PAN: "file a formal protest within the reglementary period provided by law",
   FAN: "file an administrative protest within thirty (30) days from receipt as provided under Section 228 of the NIRC",

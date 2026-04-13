@@ -3,7 +3,7 @@
  *
  * Encodes Philippine BIR deadline rules as a pure, deterministic function:
  * - LOA 120-day validity (RMO 44-2010)
- * - NIC 15-day response window (RMO 19-2007)
+ * - NOD 15-day response window (RR 12-99)
  * - PAN 30-day protest period (NIRC Section 228 / RR 12-99)
  *
  * No external dependencies. No side effects.
@@ -17,8 +17,8 @@ export interface DeadlineInput {
   loaReceiptDate: string;
   /** Date LOA was issued by the BIR (ISO 8601). Triggers 120-day validity window. */
   loaIssuanceDate?: string;
-  /** Date Notice for Informal Conference was received (ISO 8601). Triggers 15-day response window. */
-  nicReceiptDate?: string;
+  /** Date Notice of Discrepancy was received (ISO 8601). Triggers 15-day response window. */
+  nodReceiptDate?: string;
   /** Date Preliminary Assessment Notice was received (ISO 8601). Triggers 30-day protest window. */
   panReceiptDate?: string;
 }
@@ -62,7 +62,7 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
   // Normalize all date inputs to ISO YYYY-MM-DD — accepts ISO, US MM/DD/YYYY, or natural language
   const loaReceiptDate = parseFlexibleDate(input.loaReceiptDate);
   const loaIssuanceDate = input.loaIssuanceDate ? parseFlexibleDate(input.loaIssuanceDate) : undefined;
-  const nicReceiptDate = input.nicReceiptDate ? parseFlexibleDate(input.nicReceiptDate) : undefined;
+  const nodReceiptDate = input.nodReceiptDate ? parseFlexibleDate(input.nodReceiptDate) : undefined;
   const panReceiptDate = input.panReceiptDate ? parseFlexibleDate(input.panReceiptDate) : undefined;
 
   // LOA 120-day validity — starts from loaIssuanceDate (not receipt date)
@@ -85,17 +85,17 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
     }
   }
 
-  // NIC 15-day response window — starts from nicReceiptDate
-  if (nicReceiptDate) {
-    const dueDate = addDays(nicReceiptDate, 15);
+  // NOD 15-day response window — starts from nodReceiptDate
+  if (nodReceiptDate) {
+    const dueDate = addDays(nodReceiptDate, 15);
     const daysRemaining = daysUntil(dueDate);
     const isOverdue = daysRemaining < 0;
     deadlines.push({
-      name: "NIC Response Deadline",
+      name: "NOD Response Deadline",
       dueDate,
       daysRemaining,
       legalBasis:
-        "Taxpayer must respond to the Notice for Informal Conference within 15 days of receipt per RMO 19-2007.",
+        "Taxpayer must respond to the Notice of Discrepancy within 15 days of receipt per RR 12-99.",
       isOverdue,
     });
   }

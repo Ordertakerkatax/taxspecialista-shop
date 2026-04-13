@@ -8,7 +8,7 @@ import { sendEscalationNotificationEmail } from "@/lib/email";
 
 export const calculateDeadlinesTool = tool({
   description:
-    "Compute response deadlines for a taxpayer's BIR LOA stage. Call this after learning the LOA receipt date and any other relevant dates (LOA issuance date, NIC receipt date, PAN receipt date).",
+    "Compute response deadlines for a taxpayer's BIR LOA stage. Call this after learning the LOA receipt date and any other relevant dates (LOA issuance date, NOD receipt date, PAN receipt date).",
   inputSchema: z.object({
     loaReceiptDate: z
       .string()
@@ -17,10 +17,10 @@ export const calculateDeadlinesTool = tool({
       .string()
       .optional()
       .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') the LOA was issued/signed — needed to compute 120-day LOA validity deadline"),
-    nicReceiptDate: z
+    nodReceiptDate: z
       .string()
       .optional()
-      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') when the taxpayer received the Notice for Informal Conference — triggers 15-day response window"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') when the taxpayer received the Notice of Discrepancy (NOD) — triggers 15-day response window"),
     panReceiptDate: z
       .string()
       .optional()
@@ -171,10 +171,10 @@ export function createDocumentTools(sessionToken: string) {
 
   const generateAcknowledgmentLetterTool = tool({
     description:
-      "Generate a draft acknowledgment letter for any BIR correspondence (LOA, NIC, NOD, PAN, FAN, FDDA). This establishes the taxpayer's cooperative stance and documents awareness of the reglementary period. Call this after identifying the correspondence type and gathering taxpayer details.",
+      "Generate a draft acknowledgment letter for any BIR correspondence (LOA, NOD, PAN, FAN, FDDA). This establishes the taxpayer's cooperative stance and documents awareness of the reglementary period. Call this after identifying the correspondence type and gathering taxpayer details.",
     inputSchema: z.object({
       correspondenceType: z
-        .enum(["LOA", "NIC", "NOD", "PAN", "FAN", "FDDA"])
+        .enum(["LOA", "NOD", "PAN", "FAN", "FDDA"])
         .describe("Type of BIR correspondence being acknowledged"),
       taxpayerName: z.string().describe("Full legal name of the taxpayer as registered with BIR"),
       tin: z.string().describe("Taxpayer Identification Number (TIN), e.g. '123-456-789-000'"),

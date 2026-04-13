@@ -22,7 +22,7 @@ const faqs = [
     id: "faq-3",
     question: "What types of BIR correspondence does this cover?",
     answer:
-      "We cover all major BIR correspondence types: Letter of Authority (LOA), Subpoena Duces Tecum (SDT), Notice for Informal Conference (NIC), Notice of Discrepancy (NOD), Preliminary Assessment Notice (PAN), Final Assessment Notice (FAN), and Final Decision on Disputed Assessment (FDDA). For LOA and SDT, we provide full advisory and document drafting. For assessment notices, we provide acknowledgment letters and general guidance with referral to professional representation.",
+      "We cover all major BIR correspondence types: Letter of Authority (LOA), Subpoena Duces Tecum (SDT), Notice of Discrepancy (NOD), Preliminary Assessment Notice (PAN), Final Assessment Notice (FAN), and Final Decision on Disputed Assessment (FDDA). For LOA and SDT, we provide full advisory and document drafting. For assessment notices, we provide acknowledgment letters and general guidance with referral to professional representation.",
   },
   {
     id: "faq-4",
