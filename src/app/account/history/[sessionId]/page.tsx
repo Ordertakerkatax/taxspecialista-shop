@@ -74,6 +74,14 @@ export default async function HistorySessionPage({
         >
           Download Summary
         </a>
+        <a
+          href={`/api/account/transcript?sessionId=${session.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-gray-600 hover:text-gray-700 hover:underline font-medium"
+        >
+          Download Transcript
+        </a>
       </div>
 
       <ChatInterface

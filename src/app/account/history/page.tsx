@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getUserSessions } from "@/lib/account";
+import { linkSessionsByEmail, getUserSessions } from "@/lib/account";
 import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +11,9 @@ export default async function AccountHistoryPage() {
   if (!user) {
     redirect("/sign-in");
   }
+
+  // Link any anonymous sessions with matching email to this account (Gap 3)
+  await linkSessionsByEmail(user.id, user.emailAddresses[0].emailAddress);
 
   const sessions = await getUserSessions(user.id);
 
@@ -84,6 +87,14 @@ export default async function AccountHistoryPage() {
                 className="text-sm text-gray-600 hover:text-gray-700 hover:underline font-medium"
               >
                 Download Summary
+              </a>
+              <a
+                href={`/api/account/transcript?sessionId=${session.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-600 hover:text-gray-700 hover:underline font-medium"
+              >
+                Download Transcript
               </a>
             </div>
           </div>
