@@ -6,8 +6,8 @@ import { eq, and, gt } from "drizzle-orm";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { sendPaymentReceivedEmail, sendPaymentApprovedEmail } from "@/lib/email";
-import { PRICING_TIERS } from "@/lib/constants";
-import { SESSION_EXPIRY_HOURS } from "@/lib/constants";
+import { PRICING_TIERS, SESSION_EXPIRY_HOURS } from "@/lib/constants";
+import { verifyScreenshot } from "@/lib/payments/screenshot-verify";
 import { redirect } from "next/navigation";
 
 const submitPaymentSchema = z.object({
@@ -157,6 +157,25 @@ async function tryAutoApprove(
 
   if (recentSubmissions.length > 1) {
     return { approved: false, reason: "rate_limited" };
+  }
+
+  // 5. Vision check: if screenshot provided, verify ref and amount via OCR
+  if (submission.screenshotUrl) {
+    const vision = await verifyScreenshot({
+      screenshotUrl: submission.screenshotUrl,
+      expectedRef: submission.referenceNumber,
+      expectedAmountPhp: expectedAmount,
+      paymentMethod: submission.paymentMethod,
+    });
+
+    if (!vision.verified) {
+      // Vision failed (API error etc.) — fall back to manual review
+      return { approved: false, reason: "vision_check_failed" };
+    }
+
+    if (vision.confidence === "low" || !vision.refMatch) {
+      return { approved: false, reason: "screenshot_mismatch" };
+    }
   }
 
   // All checks passed — auto-approve
