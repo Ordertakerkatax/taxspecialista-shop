@@ -1,4 +1,5 @@
 export { parseFlexibleDate } from "./parse-flexible-date";
+export { daysUntil, todayIso, addDays, addYears, isDateAfter } from "./date-helpers";
 export { calculateDeadlines } from "./calculate-deadlines";
 export type { DeadlineInput, DeadlineResult, Deadline } from "./calculate-deadlines";
 export { calculatePrescription } from "./calculate-prescription";

@@ -10,6 +10,7 @@
  */
 
 import { parseFlexibleDate } from "./parse-flexible-date";
+import { addDays, daysUntil, todayIso } from "./date-helpers";
 
 export interface DeadlineInput {
   /** Date LOA was received by the taxpayer (ISO 8601 YYYY-MM-DD). Required for session context only — does not trigger a deadline on its own. */
@@ -42,36 +43,6 @@ export interface DeadlineResult {
   deadlines: Deadline[];
   /** Warnings about overdue or legally significant conditions. */
   warnings: string[];
-}
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-function addDays(iso: string, days: number): string {
-  const date = new Date(`${iso}T00:00:00.000Z`);
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
-}
-
-function daysUntil(iso: string): number {
-  const today = new Date();
-  const todayUTC = Date.UTC(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const target = new Date(`${iso}T00:00:00.000Z`);
-  const targetUTC = target.getTime();
-  return Math.round((targetUTC - todayUTC) / (1000 * 60 * 60 * 24));
-}
-
-function todayIso(): string {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, "0");
-  const dd = String(today.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
 }
 
 // ---------------------------------------------------------------------------

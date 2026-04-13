@@ -12,6 +12,7 @@
  */
 
 import { parseFlexibleDate } from "./parse-flexible-date";
+import { addYears, daysUntil } from "./date-helpers";
 
 export interface PrescriptionInput {
   /**
@@ -44,28 +45,6 @@ export interface PrescriptionResult {
    * "3-year period from 2021-04-15 = expires 2024-04-15"
    */
   computationNote: string;
-}
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-function addYears(iso: string, years: number): string {
-  const date = new Date(`${iso}T00:00:00.000Z`);
-  date.setUTCFullYear(date.getUTCFullYear() + years);
-  return date.toISOString().slice(0, 10);
-}
-
-function daysUntil(iso: string): number {
-  const today = new Date();
-  const todayUTC = Date.UTC(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const target = new Date(`${iso}T00:00:00.000Z`);
-  const targetUTC = target.getTime();
-  return Math.round((targetUTC - todayUTC) / (1000 * 60 * 60 * 24));
 }
 
 // ---------------------------------------------------------------------------

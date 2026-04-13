@@ -14,6 +14,7 @@
  */
 
 import { parseFlexibleDate } from "./parse-flexible-date";
+import { isDateAfter } from "./date-helpers";
 
 export type WaiverDefectType =
   | "UNAUTHORIZED_SIGNATORY"
@@ -80,17 +81,6 @@ const VAGUE_COVERAGE_PATTERNS: readonly RegExp[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-function isDateAfter(dateA: string, dateB: string): boolean {
-  return (
-    new Date(`${dateA}T00:00:00.000Z`).getTime() >
-    new Date(`${dateB}T00:00:00.000Z`).getTime()
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Main export
 // ---------------------------------------------------------------------------
 
@@ -112,7 +102,7 @@ export function checkWaiverValidity(input: WaiverInput): WaiverValidityResult {
   // Check 1: Signatory authority (RMO 20-90)
   const signatoryNormalized = input.signatoryRole.trim().toLowerCase();
   const isAuthorized = AUTHORIZED_SIGNATORIES.some(
-    (role) => signatoryNormalized === role || signatoryNormalized.includes(role)
+    (role) => signatoryNormalized === role || role.includes(signatoryNormalized)
   );
   if (!isAuthorized) {
     defects.push({
