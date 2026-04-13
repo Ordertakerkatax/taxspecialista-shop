@@ -1,5 +1,7 @@
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
+import { WhyActNow } from "@/components/landing/why-act-now";
+import { CommonMistakes } from "@/components/landing/common-mistakes";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { PricingTiers } from "@/components/landing/pricing-tiers";
 import { TrustSignals } from "@/components/landing/trust-signals";
@@ -12,6 +14,8 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <WhyActNow />
+        <CommonMistakes />
         <HowItWorks />
         <PricingTiers />
         <TrustSignals />
