@@ -4,6 +4,16 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { CitationFooter } from "./citation-footer";
 
+/**
+ * Strip incomplete markdown link syntax during streaming to prevent
+ * flashing of raw URLs. Removes partial `[text](url` patterns that
+ * haven't closed yet.
+ */
+function cleanStreamingMarkdown(text: string): string {
+  // Remove incomplete links: "[text](url..." without closing ")"
+  return text.replace(/\[[^\]]*\]\([^)]*$/g, "");
+}
+
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
@@ -32,7 +42,7 @@ export function MessageBubble({ role, content, isStreaming }: MessageBubbleProps
           <div className="whitespace-pre-wrap break-words">{bodyText}</div>
         ) : (
           <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-1 prose-p:my-1.5 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-gray-900 prose-hr:my-2 [&_sup]:text-teal-600 [&_sup]:font-semibold [&_sup]:cursor-help">
-            <ReactMarkdown>{bodyText}</ReactMarkdown>
+            <ReactMarkdown>{isStreaming ? cleanStreamingMarkdown(bodyText) : bodyText}</ReactMarkdown>
           </div>
         )}
         {isStreaming && (
