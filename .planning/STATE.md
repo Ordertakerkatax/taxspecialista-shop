@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: Phase 2 executed, human verification pending
 last_updated: "2026-04-13T12:00:00.000Z"
-last_activity: 2026-04-13 - Completed quick task 260413-e31: Phase 3 flexible date parsing for deadline tools
+last_activity: 2026-04-13 - Completed quick task 260413-eu3: Phase 6 gap closure — account redirect, transcript PDF export, session auto-linking
 progress:
   total_phases: 6
   completed_phases: 1
@@ -84,9 +84,10 @@ None yet.
 | 260413-drp | Consent gate, acknowledgment letter tool, coverage scope, scope-lock, pricing, landing page, admin, auto-approve | 2026-04-13 | 63e06a89 | | [260413-drp](./quick/260413-drp-consent-gate-acknowledgment-letter-scope/) |
 | 260413-e31 | Phase 3: flexible date parsing for deadline & legal precision tools | 2026-04-13 | c58351ab | Verified | [260413-e31](./quick/260413-e31-phase-3-deadline-and-legal-precision-too/) |
 | 260413-el1 | Fix timezone off-by-one, signatory check, date helper dedup | 2026-04-13 | 490bcb31 | Complete | [260413-el1](./quick/260413-el1-fix-timezone-off-by-one-signatory-check-/) |
+| 260413-eu3 | Phase 6 gap closure: account redirect, transcript PDF export, session auto-linking | 2026-04-13 | 6b622fef | Complete | [260413-eu3](./quick/260413-eu3-phase-6-user-accounts-consultation-histo/) |
 
 ## Session Continuity
 
 Last session: 2026-04-13T10:37:00.000Z
-Stopped at: Completed quick task 260413-el1: timezone fix, signatory check fix, date helper dedup
+Stopped at: Completed quick task 260413-eu3: Phase 6 gap closure — account redirect, transcript PDF export, session auto-linking
 Resume file: .planning/phases/02-chat-core-advisory/02-CONTEXT.md
