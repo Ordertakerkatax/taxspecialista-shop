@@ -101,8 +101,13 @@ export function checkWaiverValidity(input: WaiverInput): WaiverValidityResult {
 
   // Check 1: Signatory authority (RMO 20-90)
   const signatoryNormalized = input.signatoryRole.trim().toLowerCase();
+  // Accept exact match, user input contains full authorized role (e.g. "Acting Regional Director" contains "regional director"),
+  // or an authorized role contains the user input (e.g. "regional director" contains "regional director").
   const isAuthorized = AUTHORIZED_SIGNATORIES.some(
-    (role) => signatoryNormalized === role || role.includes(signatoryNormalized)
+    (role) =>
+      signatoryNormalized === role ||
+      signatoryNormalized.includes(role) ||
+      role.includes(signatoryNormalized)
   );
   if (!isAuthorized) {
     defects.push({

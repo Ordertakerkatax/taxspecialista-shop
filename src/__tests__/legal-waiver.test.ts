@@ -77,6 +77,27 @@ describe("checkWaiverValidity", () => {
       );
       expect(result.defects.find((d) => d.defectType === "UNAUTHORIZED_SIGNATORY")).toBeUndefined();
     });
+
+    it("accepts Acting Regional Director as authorized (prefix variant)", () => {
+      const result = checkWaiverValidity(
+        validWaiverInput({ signatoryRole: "Acting Regional Director" })
+      );
+      expect(result.defects.find((d) => d.defectType === "UNAUTHORIZED_SIGNATORY")).toBeUndefined();
+    });
+
+    it("accepts OIC - Regional Director as authorized (OIC variant)", () => {
+      const result = checkWaiverValidity(
+        validWaiverInput({ signatoryRole: "OIC - Regional Director" })
+      );
+      expect(result.defects.find((d) => d.defectType === "UNAUTHORIZED_SIGNATORY")).toBeUndefined();
+    });
+
+    it("still rejects Revenue District Officer as unauthorized", () => {
+      const result = checkWaiverValidity(
+        validWaiverInput({ signatoryRole: "Revenue District Officer" })
+      );
+      expect(result.defects.find((d) => d.defectType === "UNAUTHORIZED_SIGNATORY")).toBeDefined();
+    });
   });
 
   describe("NO_DEFINITE_EXPIRY defect", () => {
