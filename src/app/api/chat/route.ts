@@ -93,7 +93,6 @@ export async function POST(req: Request) {
         calculateDeadlines: calculateDeadlinesTool,
         calculatePrescription: calculatePrescriptionTool,
         checkWaiverValidity: checkWaiverValidityTool,
-        generateProtestLetter: docTools.generateProtestLetter,
         generateComplianceLetter: docTools.generateComplianceLetter,
         generateAcknowledgmentLetter: docTools.generateAcknowledgmentLetter,
         assessComplexity: escTools.assessComplexity,
