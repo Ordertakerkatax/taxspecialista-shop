@@ -27,11 +27,11 @@ export function Hero() {
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
             <Clock className="h-4 w-4 text-teal-600 shrink-0" />
-            <span><strong className="text-gray-900">10 days</strong> to respond to an LOA</span>
+            <span><strong className="text-gray-900">10 days</strong> before the BIR issues a first notice</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
             <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
-            <span><strong className="text-gray-900">25–50%</strong> surcharge if you miss it</span>
+            <span><strong className="text-gray-900">25–50%</strong> surcharge on deficiency taxes</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
             <ShieldCheck className="h-4 w-4 text-teal-600 shrink-0" />

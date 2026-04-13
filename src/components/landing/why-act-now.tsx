@@ -18,7 +18,7 @@ const reasons = [
     icon: TrendingDown,
     title: "Penalties Compound Quickly",
     description:
-      "A 25% surcharge applies for late compliance. If the BIR determines willful neglect, that jumps to 50% — plus 12% annual interest. What starts as a manageable audit can become an unmanageable debt.",
+      "A 25% surcharge applies for late compliance. If the BIR determines willful neglect, that jumps to 50% — plus interest at the rate prescribed by law. What starts as a manageable audit can become an unmanageable debt.",
   },
   {
     icon: Scale,

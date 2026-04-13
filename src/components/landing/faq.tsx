@@ -10,7 +10,7 @@ const faqs = [
     id: "faq-1",
     question: "How is this different from ChatGPT or other AI tools?",
     answer:
-      "General AI tools give generic answers about tax law. TaxSpecialista Consult is purpose-built for Philippine BIR tax disputes. It knows the exact reglementary periods for each type of BIR correspondence, cites specific NIRC sections, Revenue Memorandum Orders, and Revenue Regulations, and generates properly formatted acknowledgment and response letters. The system is built on real case experience from ETM Tax Agent Office, not just training data.",
+      "General AI tools give generic answers about tax law. TaxSpecialista Consult is purpose-built for Philippine BIR tax disputes. It knows the exact reglementary periods for each type of BIR correspondence, cites specific NIRC sections, Revenue Memorandum Orders, and Revenue Regulations, and generates properly formatted acknowledgment and compliance letters. The system is built on real case experience from ETM Tax Agent Office, not just training data.",
   },
   {
     id: "faq-2",
@@ -34,7 +34,7 @@ const faqs = [
     id: "faq-5",
     question: "Can the AI draft a protest letter for me?",
     answer:
-      "No. Protest letters against assessment notices (PAN, FAN, FDDA) are sensitive legal documents that require professional judgment. A poorly drafted protest can waive your rights or weaken your case. When your situation requires a protest letter, we escalate your case to ETM Tax Agent Office for professional preparation. The AI can draft acknowledgment and compliance letters, which are procedural in nature.",
+      "No. Protest letters against assessment notices (PAN, FAN, FDDA) are sensitive legal documents that require professional judgment. A poorly drafted protest can waive your rights or weaken your case. When your situation requires a protest letter, we can refer you to ETM Tax Agent Office for professional preparation. The AI can draft acknowledgment and compliance letters, which are procedural in nature.",
   },
   {
     id: "faq-6",
@@ -64,7 +64,7 @@ const faqs = [
     id: "faq-10",
     question: "What if my case is too complex for the AI?",
     answer:
-      "Our system automatically detects complex cases involving large tax amounts, fraud allegations, or multiple tax periods. When complexity is flagged, a tax professional from ETM Tax Agent Office reviews your case and reaches out to you directly. This is included at no extra cost.",
+      "Our system automatically detects complex cases involving large tax amounts, fraud allegations, or multiple tax periods. When complexity is flagged, we refer your case to a tax professional from ETM Tax Agent Office who can reach out to you directly. The referral is included at no extra cost.",
   },
 ];
 

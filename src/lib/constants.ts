@@ -11,7 +11,7 @@ export const PRICING_TIERS = {
     name: "Comprehensive Consultation",
     price: 5000,
     currency: "PHP",
-    description: "In-depth analysis with detailed legal citations, multiple defense strategies, and full document drafting.",
+    description: "In-depth analysis with detailed legal citations, defense strategies, and draft compliance letters.",
   },
 } as const;
 
