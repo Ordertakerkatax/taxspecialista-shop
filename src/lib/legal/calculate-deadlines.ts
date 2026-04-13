@@ -9,6 +9,8 @@
  * No external dependencies. No side effects.
  */
 
+import { parseFlexibleDate } from "./parse-flexible-date";
+
 export interface DeadlineInput {
   /** Date LOA was received by the taxpayer (ISO 8601 YYYY-MM-DD). Required for session context only — does not trigger a deadline on its own. */
   loaReceiptDate: string;
@@ -86,9 +88,15 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
   const deadlines: Deadline[] = [];
   const warnings: string[] = [];
 
+  // Normalize all date inputs to ISO YYYY-MM-DD — accepts ISO, US MM/DD/YYYY, or natural language
+  const loaReceiptDate = parseFlexibleDate(input.loaReceiptDate);
+  const loaIssuanceDate = input.loaIssuanceDate ? parseFlexibleDate(input.loaIssuanceDate) : undefined;
+  const nicReceiptDate = input.nicReceiptDate ? parseFlexibleDate(input.nicReceiptDate) : undefined;
+  const panReceiptDate = input.panReceiptDate ? parseFlexibleDate(input.panReceiptDate) : undefined;
+
   // LOA 120-day validity — starts from loaIssuanceDate (not receipt date)
-  if (input.loaIssuanceDate) {
-    const dueDate = addDays(input.loaIssuanceDate, 120);
+  if (loaIssuanceDate) {
+    const dueDate = addDays(loaIssuanceDate, 120);
     const daysRemaining = daysUntil(dueDate);
     const isOverdue = daysRemaining < 0;
     deadlines.push({
@@ -107,8 +115,8 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
   }
 
   // NIC 15-day response window — starts from nicReceiptDate
-  if (input.nicReceiptDate) {
-    const dueDate = addDays(input.nicReceiptDate, 15);
+  if (nicReceiptDate) {
+    const dueDate = addDays(nicReceiptDate, 15);
     const daysRemaining = daysUntil(dueDate);
     const isOverdue = daysRemaining < 0;
     deadlines.push({
@@ -122,8 +130,8 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
   }
 
   // PAN 30-day protest period — starts from panReceiptDate
-  if (input.panReceiptDate) {
-    const dueDate = addDays(input.panReceiptDate, 30);
+  if (panReceiptDate) {
+    const dueDate = addDays(panReceiptDate, 30);
     const daysRemaining = daysUntil(dueDate);
     const isOverdue = daysRemaining < 0;
     deadlines.push({

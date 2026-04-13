@@ -13,6 +13,8 @@
  * No external dependencies. No side effects.
  */
 
+import { parseFlexibleDate } from "./parse-flexible-date";
+
 export type WaiverDefectType =
   | "UNAUTHORIZED_SIGNATORY"
   | "NO_DEFINITE_EXPIRY"
@@ -102,6 +104,11 @@ function isDateAfter(dateA: string, dateB: string): boolean {
 export function checkWaiverValidity(input: WaiverInput): WaiverValidityResult {
   const defects: WaiverDefect[] = [];
 
+  // Normalize all date inputs to ISO YYYY-MM-DD — accepts ISO, US MM/DD/YYYY, or natural language
+  const waiverSignedDate = parseFlexibleDate(input.waiverSignedDate);
+  const waiverExpiryDate = input.waiverExpiryDate ? parseFlexibleDate(input.waiverExpiryDate) : null;
+  const prescriptionExpiryAtSigning = parseFlexibleDate(input.prescriptionExpiryAtSigning);
+
   // Check 1: Signatory authority (RMO 20-90)
   const signatoryNormalized = input.signatoryRole.trim().toLowerCase();
   const isAuthorized = AUTHORIZED_SIGNATORIES.some(
@@ -117,7 +124,7 @@ export function checkWaiverValidity(input: WaiverInput): WaiverValidityResult {
   }
 
   // Check 2: Definite expiry date (RDAO 05-01)
-  if (input.waiverExpiryDate === null || input.waiverExpiryDate === undefined) {
+  if (waiverExpiryDate === null) {
     defects.push({
       defectType: "NO_DEFINITE_EXPIRY",
       description:
@@ -128,10 +135,10 @@ export function checkWaiverValidity(input: WaiverInput): WaiverValidityResult {
   }
 
   // Check 3: Signed before prescription expired (NIRC 203/222)
-  if (isDateAfter(input.waiverSignedDate, input.prescriptionExpiryAtSigning)) {
+  if (isDateAfter(waiverSignedDate, prescriptionExpiryAtSigning)) {
     defects.push({
       defectType: "SIGNED_AFTER_PRESCRIPTION_EXPIRED",
-      description: `The waiver was signed on ${input.waiverSignedDate}, which is after the prescriptive period had already expired on ${input.prescriptionExpiryAtSigning}. A waiver executed after prescription lapses cannot revive an already-expired right to assess.`,
+      description: `The waiver was signed on ${waiverSignedDate}, which is after the prescriptive period had already expired on ${prescriptionExpiryAtSigning}. A waiver executed after prescription lapses cannot revive an already-expired right to assess.`,
       legalBasis:
         "NIRC Section 203 / NIRC Section 222 — A waiver must be executed before the prescriptive period expires. Once prescription has lapsed, the BIR's right to assess is extinguished and cannot be waived retroactively.",
     });

@@ -12,19 +12,19 @@ export const calculateDeadlinesTool = tool({
   inputSchema: z.object({
     loaReceiptDate: z
       .string()
-      .describe("ISO 8601 date when the taxpayer received the Letter of Authority (e.g. 2025-02-01)"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') when the taxpayer received the Letter of Authority (e.g. 2025-02-01)"),
     loaIssuanceDate: z
       .string()
       .optional()
-      .describe("ISO 8601 date the LOA was issued/signed — needed to compute 120-day LOA validity deadline"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') the LOA was issued/signed — needed to compute 120-day LOA validity deadline"),
     nicReceiptDate: z
       .string()
       .optional()
-      .describe("ISO 8601 date when the taxpayer received the Notice for Informal Conference — triggers 15-day response window"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') when the taxpayer received the Notice for Informal Conference — triggers 15-day response window"),
     panReceiptDate: z
       .string()
       .optional()
-      .describe("ISO 8601 date when the taxpayer received the Preliminary Assessment Notice — triggers 30-day protest period"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') when the taxpayer received the Preliminary Assessment Notice — triggers 30-day protest period"),
   }),
   execute: async (input) => calculateDeadlines(input),
 });
@@ -36,11 +36,11 @@ export const calculatePrescriptionTool = tool({
     assessmentBasisDate: z
       .string()
       .describe(
-        "ISO 8601 date — the LATER of: the actual filing date OR the statutory filing deadline. This is the start date for the prescription period."
+        "Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') — the LATER of: the actual filing date OR the statutory filing deadline. This is the start date for the prescription period."
       ),
     taxPeriodEnd: z
       .string()
-      .describe("ISO 8601 date representing the end of the tax period under examination (e.g. 2021-12-31 for calendar year 2021)"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') representing the end of the tax period under examination (e.g. 2021-12-31 for calendar year 2021)"),
     fraudAlleged: z
       .boolean()
       .describe("True if the BIR alleges fraud in the assessment — triggers the 10-year extended prescription period under NIRC Section 222"),
@@ -57,11 +57,11 @@ export const checkWaiverValidityTool = tool({
   inputSchema: z.object({
     waiverSignedDate: z
       .string()
-      .describe("ISO 8601 date when the waiver was signed by the taxpayer"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') when the waiver was signed by the taxpayer"),
     waiverExpiryDate: z
       .string()
       .nullable()
-      .describe("ISO 8601 date the waiver expires, or null if the waiver has no definite expiry date"),
+      .describe("Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') the waiver expires, or null if the waiver has no definite expiry date"),
     signatoryRole: z
       .string()
       .describe(
@@ -75,7 +75,7 @@ export const checkWaiverValidityTool = tool({
     prescriptionExpiryAtSigning: z
       .string()
       .describe(
-        "ISO 8601 date the prescription period would have expired without the waiver — used to check if the waiver was signed before prescription lapsed"
+        "Date (ISO YYYY-MM-DD, MM/DD/YYYY, or 'Month DD, YYYY') the prescription period would have expired without the waiver — used to check if the waiver was signed before prescription lapsed"
       ),
   }),
   execute: async (input) => checkWaiverValidity(input),

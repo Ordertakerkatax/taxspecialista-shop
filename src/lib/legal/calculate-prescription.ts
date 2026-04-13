@@ -11,6 +11,8 @@
  * No external dependencies. No side effects.
  */
 
+import { parseFlexibleDate } from "./parse-flexible-date";
+
 export interface PrescriptionInput {
   /**
    * The start date for the prescriptive period computation (ISO 8601 YYYY-MM-DD).
@@ -80,13 +82,18 @@ function daysUntil(iso: string): number {
 export function calculatePrescription(
   input: PrescriptionInput
 ): PrescriptionResult {
+  // Normalize date inputs to ISO YYYY-MM-DD — accepts ISO, US MM/DD/YYYY, or natural language
+  const assessmentBasisDate = parseFlexibleDate(input.assessmentBasisDate);
+  // Validate taxPeriodEnd format (not used in computation, but must be a valid date)
+  parseFlexibleDate(input.taxPeriodEnd);
+
   const useExtended = input.fraudAlleged || input.failureToFile;
   const years = useExtended ? 10 : 3;
   const rule: "general-3yr" | "extended-10yr" = useExtended
     ? "extended-10yr"
     : "general-3yr";
 
-  const prescriptionExpiryDate = addYears(input.assessmentBasisDate, years);
+  const prescriptionExpiryDate = addYears(assessmentBasisDate, years);
   const daysRemaining = daysUntil(prescriptionExpiryDate);
   const isExpired = daysRemaining < 0;
 
@@ -94,7 +101,7 @@ export function calculatePrescription(
     ? "NIRC Section 222(a) — The right to assess deficiency taxes in case of a false or fraudulent return with intent to evade tax, or failure to file a return, prescribes in 10 years from discovery of fraud or failure."
     : "NIRC Section 203 — In the case of a return filed on time, internal revenue taxes shall be assessed within 3 years after the last day prescribed by law for the filing of the return, or, if the return is filed after such last day, within 3 years after the date the return was filed.";
 
-  const computationNote = `${years}-year period from ${input.assessmentBasisDate} = expires ${prescriptionExpiryDate}`;
+  const computationNote = `${years}-year period from ${assessmentBasisDate} = expires ${prescriptionExpiryDate}`;
 
   return {
     rule,
