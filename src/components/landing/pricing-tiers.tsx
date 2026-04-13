@@ -17,9 +17,10 @@ const tierFeatures: Record<TierKey, string[]> = {
   comprehensive: [
     "Everything in Basic, plus:",
     "Full LOA and SDT advisory with defense strategies",
-    "Draft protest, compliance, and SDT response letters",
+    "Draft compliance and SDT response letters",
     "Prescription period and waiver validity checks",
     "Complexity assessment with tax professional referral",
+    "Protest letter preparation escalated to ETM Tax Agent Office",
     "24-hour consultation window (100 messages)",
   ],
 };

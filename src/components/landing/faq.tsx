@@ -16,7 +16,7 @@ const faqs = [
     id: "faq-2",
     question: "What do I get with a consultation?",
     answer:
-      "You get immediate clarity on your BIR situation: what the document means, your reglementary deadline to respond, the risks of inaction, and a draft acknowledgment letter you can file to establish your cooperative stance. The Comprehensive plan adds full advisory with defense strategies and draft response letters.",
+      "You get immediate clarity on your BIR situation: what the document means, your reglementary deadline to respond, the risks of inaction, and a draft acknowledgment letter you can file to establish your cooperative stance. The Comprehensive plan adds full advisory with defense strategies, draft compliance and SDT response letters, and prescription period checks.",
   },
   {
     id: "faq-3",
@@ -32,30 +32,36 @@ const faqs = [
   },
   {
     id: "faq-5",
+    question: "Can the AI draft a protest letter for me?",
+    answer:
+      "No. Protest letters against assessment notices (PAN, FAN, FDDA) are sensitive legal documents that require professional judgment. A poorly drafted protest can waive your rights or weaken your case. When your situation requires a protest letter, we escalate your case to ETM Tax Agent Office for professional preparation. The AI can draft acknowledgment and compliance letters, which are procedural in nature.",
+  },
+  {
+    id: "faq-6",
     question: "Why should I use this instead of going directly to a tax consultant?",
     answer:
       "An initial consultation with a tax professional can cost PHP 5,000 to PHP 15,000 or more, and you may wait days for an appointment. TaxSpecialista Consult gives you immediate, actionable guidance starting at PHP 2,000 so you can respond to the BIR within your deadline. If your case needs professional representation, we connect you to ETM Tax Agent Office with your case already documented and organized.",
   },
   {
-    id: "faq-6",
+    id: "faq-7",
     question: "How long is the consultation session?",
     answer:
       "Each session is valid for 24 hours from activation. The Basic plan includes up to 50 messages; the Comprehensive plan includes up to 100 messages. Most consultations complete within 30 to 60 minutes.",
   },
   {
-    id: "faq-7",
+    id: "faq-8",
     question: "What payment methods are accepted?",
     answer:
       "We accept GCash and bank transfer. No credit card required. After sending payment, submit your reference number through this website. Once verified, your consultation link is sent to your email.",
   },
   {
-    id: "faq-8",
+    id: "faq-9",
     question: "How long does payment verification take?",
     answer:
       "Payment verification typically takes a few hours during business hours (Monday to Friday, 9 AM to 6 PM Philippine time). Once verified, you will receive your consultation link by email immediately.",
   },
   {
-    id: "faq-9",
+    id: "faq-10",
     question: "What if my case is too complex for the AI?",
     answer:
       "Our system automatically detects complex cases involving large tax amounts, fraud allegations, or multiple tax periods. When complexity is flagged, a tax professional from ETM Tax Agent Office reviews your case and reaches out to you directly. This is included at no extra cost.",
