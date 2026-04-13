@@ -57,7 +57,7 @@ export function PaymentForm({ tier, amount }: PaymentFormProps) {
                 Scan the QR code below or send payment to the GCash number shown. After paying, return here and submit your reference number.
               </p>
               <div className="flex justify-center">
-                <div className="w-64 h-80 relative rounded-lg overflow-hidden border border-gray-200 bg-white">
+                <div className="w-full max-w-sm h-96 relative rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <Image
                     src="/assets/gcash-qr.jpg"
                     alt="GCash QR Code"
@@ -90,7 +90,7 @@ export function PaymentForm({ tier, amount }: PaymentFormProps) {
                 Scan the QR code below or transfer the exact amount to the BPI account shown. After transferring, return here and submit your reference number.
               </p>
               <div className="flex justify-center">
-                <div className="w-64 h-80 relative rounded-lg overflow-hidden border border-gray-200 bg-white">
+                <div className="w-full max-w-sm h-96 relative rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <Image
                     src="/assets/bpi-qr.png"
                     alt="BPI QR Code"
