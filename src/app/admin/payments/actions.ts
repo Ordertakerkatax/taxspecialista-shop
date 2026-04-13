@@ -41,7 +41,11 @@ export async function approvePayment(paymentId: string) {
   });
 
   // Email user with session link (D-03)
-  await sendPaymentApprovedEmail(payment.email, sessionToken, expiresAt);
+  try {
+    await sendPaymentApprovedEmail(payment.email, sessionToken, expiresAt);
+  } catch (e) {
+    console.warn("[admin] Approval email failed:", (e as Error).message);
+  }
 
   revalidatePath("/admin/payments");
 }
@@ -65,7 +69,11 @@ export async function rejectPayment(paymentId: string, reason: string) {
   if (!payment) throw new Error("Payment not found or already processed");
 
   // Email user with rejection reason
-  await sendPaymentRejectedEmail(payment.email, reason);
+  try {
+    await sendPaymentRejectedEmail(payment.email, reason);
+  } catch (e) {
+    console.warn("[admin] Rejection email failed:", (e as Error).message);
+  }
 
   revalidatePath("/admin/payments");
 }
