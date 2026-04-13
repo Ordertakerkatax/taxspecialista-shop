@@ -59,15 +59,11 @@ export function PaymentForm({ tier, amount }: PaymentFormProps) {
               <div className="flex justify-center">
                 <div className="w-48 h-48 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center">
                   <Image
-                    src="/assets/gcash-qr.png"
+                    src="/assets/gcash-qr.jpg"
                     alt="GCash QR Code"
                     width={200}
                     height={200}
                     className="rounded-lg object-contain"
-                    onError={(e) => {
-                      // Hide if image not available yet
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
                   />
                 </div>
               </div>
@@ -75,7 +71,7 @@ export function PaymentForm({ tier, amount }: PaymentFormProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-500">GCash Number</span>
                   <span className="font-medium text-gray-900 font-mono">
-                    09XX-XXX-XXXX
+                    0977-857-XXXX
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -92,21 +88,32 @@ export function PaymentForm({ tier, amount }: PaymentFormProps) {
           <TabsContent value="bank_transfer">
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4">
               <p className="text-sm text-gray-600">
-                Transfer the exact amount to the bank account below. After transferring, return here and submit your reference number.
+                Scan the QR code below or transfer the exact amount to the BPI account shown. After transferring, return here and submit your reference number.
               </p>
+              <div className="flex justify-center">
+                <div className="w-48 h-48 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center">
+                  <Image
+                    src="/assets/bpi-qr.png"
+                    alt="BPI QR Code"
+                    width={200}
+                    height={200}
+                    className="rounded-lg object-contain"
+                  />
+                </div>
+              </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Bank</span>
-                  <span className="font-medium text-gray-900">BDO / BPI</span>
+                  <span className="font-medium text-gray-900">BPI</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Account Name</span>
-                  <span className="font-medium text-gray-900">TaxSpecialista</span>
+                  <span className="font-medium text-gray-900">Emelson Maestro (TaxSpecial)</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Account Number</span>
                   <span className="font-medium text-gray-900 font-mono">
-                    XXXX-XXXX-XX
+                    2929020785
                   </span>
                 </div>
                 <div className="flex justify-between">
