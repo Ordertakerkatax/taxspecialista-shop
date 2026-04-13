@@ -57,13 +57,12 @@ export function PaymentForm({ tier, amount }: PaymentFormProps) {
                 Scan the QR code below or send payment to the GCash number shown. After paying, return here and submit your reference number.
               </p>
               <div className="flex justify-center">
-                <div className="w-48 h-48 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center">
+                <div className="w-48 h-48 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                   <Image
                     src="/assets/gcash-qr.jpg"
                     alt="GCash QR Code"
-                    width={200}
-                    height={200}
-                    className="rounded-lg object-contain"
+                    fill
+                    className="object-contain"
                   />
                 </div>
               </div>
@@ -91,13 +90,12 @@ export function PaymentForm({ tier, amount }: PaymentFormProps) {
                 Scan the QR code below or transfer the exact amount to the BPI account shown. After transferring, return here and submit your reference number.
               </p>
               <div className="flex justify-center">
-                <div className="w-48 h-48 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center">
+                <div className="w-48 h-48 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                   <Image
                     src="/assets/bpi-qr.png"
                     alt="BPI QR Code"
-                    width={200}
-                    height={200}
-                    className="rounded-lg object-contain"
+                    fill
+                    className="object-contain"
                   />
                 </div>
               </div>
