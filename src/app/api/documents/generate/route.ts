@@ -68,7 +68,8 @@ export async function GET(request: NextRequest) {
   let sessionResult;
   try {
     sessionResult = await validateSession(sessionToken);
-  } catch {
+  } catch (e) {
+    console.error("[documents] Session validation error:", e);
     return Response.json(
       { error: "Failed to generate document" },
       { status: 500 }
@@ -116,7 +117,9 @@ export async function GET(request: NextRequest) {
         "Content-Length": String(pdfBuffer.length),
       },
     });
-  } catch {
+  } catch (e) {
+    // Log the actual error for debugging (visible in Vercel function logs)
+    console.error("[documents] PDF generation error:", e);
     // Generic error — do not expose stack traces or internal paths (T-04-03)
     return Response.json(
       { error: "Failed to generate document" },

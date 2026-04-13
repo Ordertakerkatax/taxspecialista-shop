@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   env: {
     DATABASE_URL: process.env.DATABASE_URL ?? "postgresql://build-placeholder:build-placeholder@localhost/build-placeholder",
   },
+  // PDFKit requires Node.js native modules (font handling, streams) that cannot
+  // be bundled by webpack. Marking it as external ensures Vercel serverless
+  // functions load it as a regular Node.js require().
+  serverExternalPackages: ["pdfkit"],
 };
 
 export default nextConfig;
