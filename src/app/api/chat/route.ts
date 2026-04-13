@@ -1,10 +1,22 @@
-import { streamText, convertToModelMessages, type UIMessage } from "ai";
-import { anthropic, CHAT_MODEL, MAX_MESSAGES_BASIC, MAX_MESSAGES_COMPREHENSIVE } from "@/lib/ai/chat-config";
+import { streamText, stepCountIs } from "ai";
+import { calculateDeadlinesTool, calculatePrescriptionTool, checkWaiverValidityTool, createDocumentTools, createEscalationTools } from "@/lib/ai/tools";
+import { getAnthropic, CHAT_MODEL, MAX_MESSAGES_BASIC, MAX_MESSAGES_COMPREHENSIVE } from "@/lib/ai/chat-config";
 import { buildSystemPrompt } from "@/lib/ai/system-prompt";
 import { validateSession } from "@/lib/session";
 import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { eq } from "drizzle-orm";
+
+// Extract text content from a message (handles both v6 parts[] and legacy content string)
+function getMessageText(msg: Record<string, unknown>): string {
+  if (typeof msg.content === "string") return msg.content;
+  const parts = msg.parts as Array<{ type: string; text?: string }> | undefined;
+  if (parts) {
+    const textPart = parts.find((p) => p.type === "text");
+    return textPart?.text ?? "";
+  }
+  return "";
+}
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -35,8 +47,10 @@ export async function POST(req: Request) {
 
   const session = sessionResult.session;
   const tier = session.tier as "basic" | "comprehensive";
+  const docTools = createDocumentTools(sessionToken);
+  const escTools = createEscalationTools(session.id, session.email);
 
-  // Check message limit per D-11 tier differentiation
+  // Check message limit
   const maxMessages = tier === "comprehensive" ? MAX_MESSAGES_COMPREHENSIVE : MAX_MESSAGES_BASIC;
   const existingCount = await db.select({ id: chatMessages.id })
     .from(chatMessages)
@@ -50,13 +64,9 @@ export async function POST(req: Request) {
   }
 
   // Save the latest user message
-  // In AI SDK v6, messages are UIMessage[] with parts array instead of content string
-  const lastUserMessage = messages[messages.length - 1] as UIMessage | undefined;
-  if (lastUserMessage && lastUserMessage.role === "user") {
-    const textPart = lastUserMessage.parts?.find(
-      (p: { type: string }) => p.type === "text"
-    ) as { type: "text"; text: string } | undefined;
-    const userContent = textPart?.text ?? "";
+  const lastMsg = messages[messages.length - 1];
+  if (lastMsg && lastMsg.role === "user") {
+    const userContent = getMessageText(lastMsg);
     if (userContent) {
       await db.insert(chatMessages).values({
         sessionId: session.id,
@@ -66,23 +76,44 @@ export async function POST(req: Request) {
     }
   }
 
+  // Convert messages to simple {role, content} format for streamText
+  const simpleMessages = messages.map((m: Record<string, unknown>) => ({
+    role: m.role as "user" | "assistant",
+    content: getMessageText(m),
+  }));
+
   const systemPrompt = buildSystemPrompt(tier);
-  // Convert UIMessage[] (v6 format) to ModelMessage[] for streamText
-  const modelMessages = await convertToModelMessages(messages as UIMessage[]);
 
-  const result = streamText({
-    model: anthropic(CHAT_MODEL),
-    system: systemPrompt,
-    messages: modelMessages,
-    onFinish: async ({ text }) => {
-      // Save assistant response after streaming completes
-      await db.insert(chatMessages).values({
-        sessionId: session.id,
-        role: "assistant",
-        content: text,
-      });
-    },
-  });
+  try {
+    const result = streamText({
+      model: getAnthropic()(CHAT_MODEL),
+      system: systemPrompt,
+      messages: simpleMessages,
+      tools: {
+        calculateDeadlines: calculateDeadlinesTool,
+        calculatePrescription: calculatePrescriptionTool,
+        checkWaiverValidity: checkWaiverValidityTool,
+        generateProtestLetter: docTools.generateProtestLetter,
+        generateComplianceLetter: docTools.generateComplianceLetter,
+        generateAcknowledgmentLetter: docTools.generateAcknowledgmentLetter,
+        assessComplexity: escTools.assessComplexity,
+      },
+      stopWhen: stepCountIs(5),
+      onFinish: async ({ text }) => {
+        await db.insert(chatMessages).values({
+          sessionId: session.id,
+          role: "assistant",
+          content: text,
+        });
+      },
+    });
 
-  return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    console.error("[chat] Error:", error);
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }

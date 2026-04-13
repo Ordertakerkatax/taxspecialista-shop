@@ -3,15 +3,15 @@ export const SESSION_EXPIRY_HOURS = 24;
 export const PRICING_TIERS = {
   basic: {
     name: "Basic Consultation",
-    price: 1000,
+    price: 2000,
     currency: "PHP",
-    description: "Ideal for straightforward LOA responses and initial BIR compliance questions.",
+    description: "Immediate guidance on BIR correspondence — deadlines, risks, and draft acknowledgment letters.",
   },
   comprehensive: {
     name: "Comprehensive Consultation",
-    price: 2500,
+    price: 5000,
     currency: "PHP",
-    description: "In-depth analysis with detailed legal citations, multiple defense strategies, and priority review.",
+    description: "In-depth analysis with detailed legal citations, multiple defense strategies, and full document drafting.",
   },
 } as const;
 

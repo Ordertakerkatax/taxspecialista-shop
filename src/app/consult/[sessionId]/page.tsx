@@ -11,6 +11,10 @@ import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { ChatInterface } from "@/components/chat/chat-interface";
+import { ConsultationWithConsent } from "@/components/chat/consultation-with-consent";
+import { currentUser } from "@clerk/nextjs/server";
+import { linkSessionsByEmail } from "@/lib/account";
+import { SaveToAccountBanner } from "@/components/account/save-to-account-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +47,7 @@ export default async function ConsultPage({ params }: ConsultPageProps) {
   const { sessionId } = await params;
   const result = await validateSession(sessionId);
 
-  // State 1: Valid (active) session — show live chat
+  // State 1: Valid (active) session — show live chat (with consent gate if not yet accepted)
   if (result.reason === "active") {
     const { session } = result;
     // Verify tier is a valid key (fallback to basic)
@@ -56,19 +60,24 @@ export default async function ConsultPage({ params }: ConsultPageProps) {
       .orderBy(asc(chatMessages.createdAt));
 
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
-        <ChatInterface
-          sessionToken={sessionId}
-          sessionId={session.id}
-          tier={session.tier as "basic" | "comprehensive"}
-          initialMessages={existingMessages.map((m) => ({
-            id: m.id,
-            role: m.role as "user" | "assistant",
-            content: m.content,
-          }))}
-          readOnly={false}
-        />
-      </div>
+      <ConsultationWithConsent
+        sessionToken={sessionId}
+        alreadyConsented={!!session.consentedAt}
+      >
+        <div className="min-h-screen bg-gray-50 p-4">
+          <ChatInterface
+            sessionToken={sessionId}
+            sessionId={session.id}
+            tier={session.tier as "basic" | "comprehensive"}
+            initialMessages={existingMessages.map((m) => ({
+              id: m.id,
+              role: m.role as "user" | "assistant",
+              content: m.content,
+            }))}
+            readOnly={false}
+          />
+        </div>
+      </ConsultationWithConsent>
     );
   }
 
@@ -79,6 +88,15 @@ export default async function ConsultPage({ params }: ConsultPageProps) {
       .from(chatMessages)
       .where(eq(chatMessages.sessionId, result.session.id))
       .orderBy(asc(chatMessages.createdAt));
+
+    // Auto-link: if signed-in user visits an expired session with no userId, link by email
+    const user = await currentUser();
+    if (user && result.session.userId === null) {
+      const userEmail = user.emailAddresses[0]?.emailAddress;
+      if (userEmail) {
+        await linkSessionsByEmail(user.id, userEmail);
+      }
+    }
 
     return (
       <div className="min-h-screen bg-gray-50 p-4">
@@ -93,6 +111,7 @@ export default async function ConsultPage({ params }: ConsultPageProps) {
           }))}
           readOnly={true}
         />
+        <SaveToAccountBanner email={result.session.email} />
       </div>
     );
   }

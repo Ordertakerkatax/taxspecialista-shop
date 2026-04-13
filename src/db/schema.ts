@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, pgEnum, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, pgEnum, uuid, index } from "drizzle-orm/pg-core";
 
 export const paymentMethodEnum = pgEnum("payment_method", ["gcash", "bank_transfer"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "approved", "rejected"]);
@@ -22,12 +22,14 @@ export const consultationSessions = pgTable("consultation_sessions", {
   id: uuid("id").defaultRandom().primaryKey(),
   paymentId: uuid("payment_id").references(() => paymentSubmissions.id).notNull().unique(),
   email: text("email").notNull(),
+  userId: text("user_id"),  // Clerk user ID, null for anonymous sessions
   tier: consultationTierEnum("tier").notNull(),
   sessionToken: text("session_token").notNull().unique(),
   activatedAt: timestamp("activated_at").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
+  consentedAt: timestamp("consented_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [index("idx_sessions_user_id").on(table.userId)]);
 
 export const messageRoleEnum = pgEnum("message_role", ["user", "assistant"]);
 
@@ -41,3 +43,21 @@ export const chatMessages = pgTable("chat_messages", {
 
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type NewChatMessage = typeof chatMessages.$inferInsert;
+
+export const escalationSeverityEnum = pgEnum("escalation_severity", ["medium", "high"]);
+export const escalationStatusEnum = pgEnum("escalation_status", ["pending", "reviewed", "resolved"]);
+
+export const escalations = pgTable("escalations", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  sessionId: uuid("session_id").references(() => consultationSessions.id).notNull(),
+  summary: text("summary").notNull(),
+  complexityReasons: text("complexity_reasons").notNull(),
+  severity: escalationSeverityEnum("severity").notNull(),
+  status: escalationStatusEnum("status").default("pending").notNull(),
+  reviewerNotes: text("reviewer_notes"),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Escalation = typeof escalations.$inferSelect;
+export type NewEscalation = typeof escalations.$inferInsert;

@@ -55,8 +55,12 @@ export async function submitPaymentProof(
     })
     .returning();
 
-  // Send admin notification email (D-04)
-  await sendPaymentReceivedEmail(submission);
+  // Send admin notification email (D-04) — gracefully skip if Resend not configured
+  try {
+    await sendPaymentReceivedEmail(submission);
+  } catch (e) {
+    console.warn("[pay] Email notification skipped:", (e as Error).message);
+  }
 
   redirect(`/pay-submitted?email=${encodeURIComponent(parsed.data.email)}`);
 }

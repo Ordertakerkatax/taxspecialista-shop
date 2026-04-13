@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RejectDialog } from "@/components/admin/reject-dialog";
 import { approvePayment } from "@/app/admin/payments/actions";
+import { PRICING_TIERS } from "@/lib/constants";
 import type { paymentSubmissions } from "@/db/schema";
 
 type PaymentSubmission = typeof paymentSubmissions.$inferSelect;
@@ -91,6 +92,16 @@ interface PaymentRowProps {
   optimisticStatus?: PaymentSubmission["status"];
 }
 
+function AmountCheck({ tier, amount }: { tier: PaymentSubmission["tier"]; amount: number }) {
+  const expected = PRICING_TIERS[tier as keyof typeof PRICING_TIERS]?.price ?? 0;
+  if (amount === expected) return null;
+  return (
+    <span className="text-xs text-red-500 block" title={`Expected PHP ${expected.toLocaleString()} for ${tier} tier`}>
+      Expected {formatAmount(expected)}
+    </span>
+  );
+}
+
 function PaymentRow({ payment, optimisticStatus }: PaymentRowProps) {
   const [rejectOpen, setRejectOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -118,6 +129,7 @@ function PaymentRow({ payment, optimisticStatus }: PaymentRowProps) {
         <TableCell className="font-mono text-sm">{payment.referenceNumber}</TableCell>
         <TableCell className="text-sm font-medium">
           {formatAmount(payment.amountPhp)}
+          <AmountCheck tier={payment.tier} amount={payment.amountPhp} />
         </TableCell>
         <TableCell>
           {payment.screenshotUrl ? (
@@ -204,7 +216,10 @@ function PaymentCard({ payment }: { payment: PaymentSubmission }) {
         <span className="font-mono">{payment.referenceNumber}</span>
       </div>
 
-      <div className="text-sm font-medium">{formatAmount(payment.amountPhp)}</div>
+      <div className="text-sm font-medium">
+        {formatAmount(payment.amountPhp)}
+        <AmountCheck tier={payment.tier} amount={payment.amountPhp} />
+      </div>
 
       {payment.screenshotUrl && (
         <a

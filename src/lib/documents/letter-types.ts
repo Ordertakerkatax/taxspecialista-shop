@@ -1,271 +1,160 @@
 /**
- * Letter type interfaces and builder functions for BIR tax dispute advisory letters.
- * Supports LOA Reply and Protest Letter as primary document types for Phase 4.
+ * TypeScript interfaces for BIR formal correspondence letter content.
+ * Based on D-07 and D-08 (BIR formal correspondence format).
  */
 
-// ============================================================
-// Shared interfaces
-// ============================================================
+/** The final structured content ready for PDF rendering. */
+export interface LetterContent {
+  /** Spelled-out date, e.g. "April 9, 2026" */
+  date: string;
+  /** Full name of the addressee (e.g. "Regional Director" or "Revenue Officer Maria Santos") */
+  addresseeName: string;
+  /** Title of the addressee (e.g. "Regional Director") */
+  addresseeTitle: string;
+  /** Office or bureau name (e.g. "BIR Regional Office No. 8") */
+  addresseeOffice: string;
+  /** Mailing address of the addressee */
+  addresseeAddress: string;
+  /** RE line / subject line (LOA number, tax type, period) */
+  subjectLine: string;
+  /** Salutation (e.g. "Dear Sir/Madam:") */
+  salutation: string;
+  /** Body paragraphs — each element is one paragraph */
+  bodyParagraphs: string[];
+  /** Prayer / relief requested (WHEREFORE clause or reservation clause) */
+  prayer: string;
+  /** Signatory name in ALL CAPS */
+  signatoryName: string;
+  /** Signatory TIN */
+  signatoryTin: string;
+  /** Signatory mailing address */
+  signatoryAddress: string;
+  /** Legal citations listed in the footer */
+  citations: string[];
+  /** Letter type — determines filename in download header */
+  letterType: "protest" | "compliance" | "acknowledgment";
+}
 
-export interface LetterMetadata {
-  /** Taxpayer's full legal name */
+/** Input for generating a Protest Letter (LOA stage). */
+export interface ProtestLetterInput {
+  /** Full name of the taxpayer */
   taxpayerName: string;
-  /** Taxpayer's TIN */
-  taxpayerTin: string;
-  /** Taxpayer's address */
+  /** Taxpayer identification number */
+  tin: string;
+  /** Taxpayer mailing address */
   taxpayerAddress: string;
-  /** BIR office (Revenue District Office or Region) issuing the notice */
-  birOffice: string;
-  /** Date the taxpayer's document was received (ISO date string) */
-  documentReceivedDate: string;
-  /** Tax type covered (e.g., "Income Tax", "VAT", "Withholding Tax") */
-  taxType: string;
-  /** Taxable year or period covered (e.g., "2022", "January–June 2022") */
-  taxablePeriod: string;
-  /** Assessed or claimed amount in PHP, if any */
-  assessedAmountPhp?: number;
-  /** Session ID for audit trail */
-  sessionId: string;
+  /** Letter of Authority number (e.g. "LOA-2025-00123") */
+  loaNumber: string;
+  /** LOA issuance date (spelled out) */
+  loaIssuanceDate: string;
+  /** Date the taxpayer received the LOA (spelled out) */
+  loaReceiptDate: string;
+  /** Tax types covered by the LOA (e.g. ["Income Tax", "VAT"]) */
+  taxTypes: string[];
+  /** Taxable period covered (e.g. "January 1, 2024 to December 31, 2024") */
+  taxPeriod: string;
+  /** Assessed amount, or null if not yet assessed */
+  assessedAmount: string | null;
+  /** Defense grounds — each becomes a numbered paragraph in the body */
+  defenseGrounds: string[];
+  /** Legal citations to include in the footer and reference in body paragraphs */
+  legalCitations: string[];
+  /** Title of the addressee (e.g. "Regional Director") */
+  addresseeTitle: string;
+  /** Office of the addressee (e.g. "BIR Regional Office No. 8") */
+  addresseeOffice: string;
+  /** Mailing address of the addressee */
+  addresseeAddress: string;
 }
-
-export interface Citation {
-  /** Reference number e.g. [1] */
-  number: number;
-  /** Full citation text e.g. "NIRC Section 228 — Assessment Notice Requirements" */
-  text: string;
-}
-
-export interface LetterSection {
-  /** Section heading (optional — can be omitted for body paragraphs) */
-  heading?: string;
-  /** Paragraph text(s) — each element is a separate paragraph */
-  paragraphs: string[];
-}
-
-// ============================================================
-// LOA Reply Letter
-// ============================================================
-
-export interface LoaReplyContent {
-  type: "loa_reply";
-  metadata: LetterMetadata;
-  /** LOA reference number from the document */
-  loaReferenceNumber: string;
-  /** Date the LOA was issued (ISO date string) */
-  loaIssuedDate: string;
-  /** Name of Revenue Officer named in the LOA */
-  revenueOfficerName: string;
-  /** Specific grounds for reply / issues raised */
-  groundsForReply: string[];
-  /** Documents being submitted with the reply */
-  documentsSubmitted?: string[];
-  /** Legal citations drawn from the advisory session */
-  citations: Citation[];
-}
-
-export interface LoaReplyLetter {
-  type: "loa_reply";
-  subject: string;
-  recipientBlock: string[];
-  salutation: string;
-  sections: LetterSection[];
-  closingParagraph: string;
-  citations: Citation[];
-  disclaimer: string;
-  generatedAt: string;
-}
-
-export function buildLoaReplyLetter(content: LoaReplyContent): LoaReplyLetter {
-  const { metadata, loaReferenceNumber, loaIssuedDate, revenueOfficerName, groundsForReply, documentsSubmitted, citations } = content;
-
-  const formattedLoaDate = formatDate(loaIssuedDate);
-  const formattedReceivedDate = formatDate(metadata.documentReceivedDate);
-  const today = formatDate(new Date().toISOString());
-  const assessmentText = metadata.assessedAmountPhp
-    ? `PHP ${metadata.assessedAmountPhp.toLocaleString("en-PH")}`
-    : "as stated in the LOA";
-
-  const subject = `RE: Letter of Authority No. ${loaReferenceNumber} dated ${formattedLoaDate} — ${metadata.taxType} for Taxable Year/Period ${metadata.taxablePeriod}`;
-
-  const recipientBlock = [
-    revenueOfficerName,
-    "Revenue Officer",
-    metadata.birOffice,
-    "Bureau of Internal Revenue",
-  ];
-
-  const sections: LetterSection[] = [
-    {
-      paragraphs: [
-        `This constitutes the formal reply of ${metadata.taxpayerName} (TIN: ${metadata.taxpayerTin}), with address at ${metadata.taxpayerAddress}, to the Letter of Authority No. ${loaReferenceNumber} dated ${formattedLoaDate}, received on ${formattedReceivedDate}, for the examination of ${metadata.taxType} for the taxable year/period ${metadata.taxablePeriod}, with an assessed or claimed amount of ${assessmentText}.`,
-      ],
-    },
-    {
-      heading: "I. GROUNDS FOR REPLY",
-      paragraphs: groundsForReply,
-    },
-  ];
-
-  if (documentsSubmitted && documentsSubmitted.length > 0) {
-    sections.push({
-      heading: "II. DOCUMENTS SUBMITTED",
-      paragraphs: [
-        "In support of this reply, the following documents are hereto attached:",
-        documentsSubmitted.map((doc, i) => `${i + 1}. ${doc}`).join("\n"),
-      ],
-    });
-  }
-
-  const closingParagraph = `We respectfully request that this reply be given due consideration. We remain available for any clarification the Bureau may require and trust that the matter will be resolved in accordance with due process as mandated by law. [${citations.map(c => c.number).join("][")}]`;
-
-  return {
-    type: "loa_reply",
-    subject,
-    recipientBlock,
-    salutation: `Dear ${revenueOfficerName},`,
-    sections,
-    closingParagraph,
-    citations,
-    disclaimer: buildDisclaimer(today),
-    generatedAt: today,
-  };
-}
-
-// ============================================================
-// Protest Letter
-// ============================================================
-
-export interface ProtestLetterContent {
-  type: "protest_letter";
-  metadata: LetterMetadata;
-  /** Assessment notice type: "PAN" | "FAN" | "FDDA" */
-  assessmentType: "PAN" | "FAN" | "FDDA";
-  /** Assessment reference number */
-  assessmentReferenceNumber: string;
-  /** Date of assessment notice (ISO date string) */
-  assessmentDate: string;
-  /** Specific legal grounds for protest */
-  groundsForProtest: string[];
-  /** Supporting evidence or facts */
-  supportingFacts?: string[];
-  /** Relief sought */
-  reliefSought: string;
-  /** Legal citations drawn from the advisory session */
-  citations: Citation[];
-}
-
-export interface ProtestLetter {
-  type: "protest_letter";
-  subject: string;
-  recipientBlock: string[];
-  salutation: string;
-  sections: LetterSection[];
-  reliefSection: LetterSection;
-  closingParagraph: string;
-  citations: Citation[];
-  disclaimer: string;
-  generatedAt: string;
-}
-
-export function buildProtestLetter(content: ProtestLetterContent): ProtestLetter {
-  const { metadata, assessmentType, assessmentReferenceNumber, assessmentDate, groundsForProtest, supportingFacts, reliefSought, citations } = content;
-
-  const formattedAssessmentDate = formatDate(assessmentDate);
-  const today = formatDate(new Date().toISOString());
-  const assessmentText = metadata.assessedAmountPhp
-    ? `PHP ${metadata.assessedAmountPhp.toLocaleString("en-PH")}`
-    : "the amount stated in the notice";
-
-  const subject = `PROTEST AGAINST ${assessmentType} No. ${assessmentReferenceNumber} dated ${formattedAssessmentDate} — ${metadata.taxType} for Taxable Year/Period ${metadata.taxablePeriod}`;
-
-  const recipientBlock = [
-    "The Commissioner of Internal Revenue",
-    metadata.birOffice,
-    "Bureau of Internal Revenue",
-    "Quezon City",
-  ];
-
-  const sections: LetterSection[] = [
-    {
-      paragraphs: [
-        `${metadata.taxpayerName} (TIN: ${metadata.taxpayerTin}), with registered address at ${metadata.taxpayerAddress}, hereby files this formal protest against the ${assessmentType} No. ${assessmentReferenceNumber} dated ${formattedAssessmentDate}, issued by the ${metadata.birOffice}, assessing ${metadata.taxType} for the taxable year/period ${metadata.taxablePeriod} in the amount of ${assessmentText}.`,
-        `This protest is filed pursuant to Section 228 of the National Internal Revenue Code (NIRC) and Revenue Regulations No. 12-99, as amended, within the prescriptive period for filing protests.[1]`,
-      ],
-    },
-    {
-      heading: "I. STATEMENT OF FACTS",
-      paragraphs: [
-        `Taxpayer received the ${assessmentType} on ${formatDate(metadata.documentReceivedDate)}. The notice covers ${metadata.taxType} for taxable year/period ${metadata.taxablePeriod}, and the assessed deficiency totals ${assessmentText}.`,
-        ...(supportingFacts ?? []),
-      ],
-    },
-    {
-      heading: "II. GROUNDS FOR PROTEST",
-      paragraphs: groundsForProtest,
-    },
-  ];
-
-  const reliefSection: LetterSection = {
-    heading: "III. PRAYER",
-    paragraphs: [
-      reliefSought,
-      `WHEREFORE, premises considered, taxpayer respectfully prays that the ${assessmentType} No. ${assessmentReferenceNumber} be cancelled and withdrawn in its entirety, or in the alternative, that the assessment be reduced to an amount that is legally and factually supported by the evidence on record.`,
-    ],
-  };
-
-  const closingParagraph = `Other relief just and equitable under the premises are likewise prayed for.`;
-
-  return {
-    type: "protest_letter",
-    subject,
-    recipientBlock,
-    salutation: "Dear Commissioner,",
-    sections,
-    reliefSection,
-    closingParagraph,
-    citations,
-    disclaimer: buildDisclaimer(today),
-    generatedAt: today,
-  };
-}
-
-// ============================================================
-// Union type for all letter types
-// ============================================================
-
-export type LetterContent = LoaReplyContent | ProtestLetterContent;
-export type Letter = LoaReplyLetter | ProtestLetter;
 
 /**
- * Entry point: given raw letter content, build the structured letter.
+ * BIR correspondence types that can receive an acknowledgment letter.
+ * Reglementary periods are fixed by law/issuance.
  */
-export function buildLetter(content: LetterContent): Letter {
-  switch (content.type) {
-    case "loa_reply":
-      return buildLoaReplyLetter(content);
-    case "protest_letter":
-      return buildProtestLetter(content);
-    default:
-      throw new Error(`Unknown letter type: ${(content as { type: string }).type}`);
-  }
+export type BirCorrespondenceType = "LOA" | "NIC" | "NOD" | "PAN" | "FAN" | "FDDA";
+
+/** Fixed reglementary periods per correspondence type (in calendar days). */
+export const REGLEMENTARY_PERIODS: Record<BirCorrespondenceType, { days: number; basis: string }> = {
+  LOA: { days: 120, basis: "RMO 44-2010 — LOA validity period from date of issuance" },
+  NIC: { days: 15, basis: "RMO 19-2007 — Response to Notice for Informal Conference" },
+  NOD: { days: 15, basis: "RR 12-99, as amended — Response to Notice of Discrepancy" },
+  PAN: { days: 15, basis: "NIRC Section 228 — Protest to Preliminary Assessment Notice" },
+  FAN: { days: 30, basis: "NIRC Section 228 — Protest to Final Assessment Notice / Formal Letter of Demand" },
+  FDDA: { days: 30, basis: "NIRC Section 228 — Appeal of Final Decision on Disputed Assessment" },
+};
+
+/** Full labels for correspondence types. */
+export const CORRESPONDENCE_LABELS: Record<BirCorrespondenceType, string> = {
+  LOA: "Letter of Authority",
+  NIC: "Notice for Informal Conference",
+  NOD: "Notice of Discrepancy",
+  PAN: "Preliminary Assessment Notice",
+  FAN: "Final Assessment Notice / Formal Letter of Demand",
+  FDDA: "Final Decision on Disputed Assessment",
+};
+
+/** Predefined intended actions for acknowledgment letters. */
+export const INTENDED_ACTIONS: Record<BirCorrespondenceType, string> = {
+  LOA: "comply with the audit requirements and submit the requested documents within the prescribed period",
+  NIC: "attend the informal conference and present the taxpayer's position on the proposed findings",
+  NOD: "submit a written explanation addressing the discrepancies noted",
+  PAN: "file a formal protest within the reglementary period provided by law",
+  FAN: "file an administrative protest within thirty (30) days from receipt as provided under Section 228 of the NIRC",
+  FDDA: "elevate the matter to the Court of Tax Appeals within thirty (30) days from receipt as provided under the Rules of the CTA",
+};
+
+/** Input for generating an Acknowledgment Letter for any BIR correspondence. */
+export interface AcknowledgmentLetterInput {
+  /** Type of BIR correspondence being acknowledged */
+  correspondenceType: BirCorrespondenceType;
+  /** Full name of the taxpayer */
+  taxpayerName: string;
+  /** Taxpayer identification number */
+  tin: string;
+  /** Taxpayer mailing address */
+  taxpayerAddress: string;
+  /** Reference number of the BIR correspondence (e.g. LOA number, FAN number) */
+  referenceNumber: string;
+  /** Date the correspondence was received by the taxpayer (spelled out, e.g. "April 1, 2026") */
+  receiptDate: string;
+  /** Tax types covered (e.g. ["Income Tax", "VAT"]) */
+  taxTypes: string[];
+  /** Taxable period covered (e.g. "January 1, 2024 to December 31, 2024") */
+  taxPeriod: string;
+  /** Title of the BIR official the letter is addressed to */
+  addresseeTitle: string;
+  /** Office of the addressee */
+  addresseeOffice: string;
+  /** Mailing address of the addressee */
+  addresseeAddress: string;
 }
 
-// ============================================================
-// Helpers
-// ============================================================
-
-function formatDate(isoDate: string): string {
-  try {
-    return new Date(isoDate).toLocaleDateString("en-PH", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return isoDate;
-  }
-}
-
-function buildDisclaimer(date: string): string {
-  return `DRAFT — Generated by TaxSpecialista Consult on ${date}. This document is a DRAFT for review purposes only and does not constitute formal legal or tax advice. Review and finalization by a licensed Certified Public Accountant or tax attorney is required before filing or submission to any government agency. TaxSpecialista and its agents assume no liability for the use of this draft without professional review.`;
+/** Input for generating a Compliance Reply Letter (LOA stage). */
+export interface ComplianceLetterInput {
+  /** Full name of the taxpayer */
+  taxpayerName: string;
+  /** Taxpayer identification number */
+  tin: string;
+  /** Taxpayer mailing address */
+  taxpayerAddress: string;
+  /** Letter of Authority number */
+  loaNumber: string;
+  /** Date the taxpayer received the LOA (spelled out) */
+  loaReceiptDate: string;
+  /** Tax types covered by the LOA */
+  taxTypes: string[];
+  /** Taxable period covered */
+  taxPeriod: string;
+  /** Taxpayer's legal/factual positions — each becomes a numbered paragraph */
+  taxpayerPosition: string[];
+  /** List of documents submitted for audit */
+  documentsSubmitted: string[];
+  /** Legal citations supporting the taxpayer's position */
+  legalCitations: string[];
+  /** Full name and title of the Revenue Officer named in the LOA */
+  revenueOfficerName: string;
+  /** Office of the Revenue Officer */
+  revenueOfficerOffice: string;
+  /** Mailing address of the Revenue Officer's office */
+  revenueOfficerAddress: string;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { TextStreamChatTransport } from "ai";
+import { DefaultChatTransport } from "ai";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { MessageBubble } from "./message-bubble";
 import { ChatInput } from "./chat-input";
@@ -43,11 +43,13 @@ export function ChatInterface({
     []
   );
 
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: "/api/chat", body: { sessionToken } }),
+    [sessionToken]
+  );
+
   const { messages, sendMessage, status, error } = useChat({
-    transport: new TextStreamChatTransport({
-      api: "/api/chat",
-      body: { sessionToken },
-    }),
+    transport,
     messages: initialUIMessages,
   });
 
@@ -92,8 +94,11 @@ export function ChatInterface({
         className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
       >
         {messages.map((message, i) => {
-          const textPart = message.parts.find((p) => p.type === "text");
-          const content = textPart ? (textPart as { type: "text"; text: string }).text : "";
+          // Concatenate ALL text parts (multi-step tool responses have multiple text parts)
+          const textParts = message.parts.filter((p) => p.type === "text");
+          const content = textParts
+            .map((p) => (p as { type: "text"; text: string }).text)
+            .join("\n\n");
           const isStreamingThis =
             isLoading &&
             i === messages.length - 1 &&

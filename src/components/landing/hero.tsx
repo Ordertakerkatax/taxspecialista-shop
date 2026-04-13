@@ -3,10 +3,10 @@ export function Hero() {
     <section className="bg-gray-50 py-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
         <h1 className="text-4xl font-semibold text-gray-900 leading-tight mb-4">
-          Get Expert Guidance on Your BIR Tax Dispute
+          Received a Letter from the BIR? Know Your Deadlines Now.
         </h1>
         <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto mb-8">
-          AI-powered consultation backed by Philippine tax law. Get actionable steps, legal citations, and response deadlines -- starting at PHP 1,000.
+          Get immediate clarity on your BIR situation -- reglementary periods, risks, and a draft acknowledgment letter -- backed by Philippine tax law. Starting at PHP 2,000.
         </p>
         <a
           href="#pricing"

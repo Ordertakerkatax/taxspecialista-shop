@@ -1,101 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 import { CitationFooter } from "./citation-footer";
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
   isStreaming?: boolean;
-}
-
-function renderFormattedContent(text: string, isUser: boolean): React.ReactNode {
-  // Split into lines for list detection
-  const lines = text.split("\n");
-  const elements: React.ReactNode[] = [];
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-
-    // Detect numbered list block
-    if (/^\d+\.\s/.test(line)) {
-      const listItems: string[] = [];
-      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
-        listItems.push(lines[i].replace(/^\d+\.\s/, ""));
-        i++;
-      }
-      elements.push(
-        <ol key={`ol-${i}`} className="list-decimal list-inside space-y-1 my-1">
-          {listItems.map((item, idx) => (
-            <li key={idx}>{formatInline(item, isUser)}</li>
-          ))}
-        </ol>
-      );
-      continue;
-    }
-
-    // Empty line
-    if (line.trim() === "") {
-      elements.push(<br key={`br-${i}`} />);
-      i++;
-      continue;
-    }
-
-    // Regular paragraph line
-    elements.push(
-      <span key={`p-${i}`} className="block">
-        {formatInline(line, isUser)}
-      </span>
-    );
-    i++;
-  }
-
-  return elements;
-}
-
-function formatInline(text: string, isUser: boolean): React.ReactNode {
-  // Parse bold (**text**) and citation markers ([1], [2])
-  const parts: React.ReactNode[] = [];
-  const regex = /\*\*(.+?)\*\*|\[(\d+)\]/g;
-  let last = 0;
-  let match;
-
-  while ((match = regex.exec(text)) !== null) {
-    // Text before match
-    if (match.index > last) {
-      parts.push(text.slice(last, match.index));
-    }
-
-    if (match[1] !== undefined) {
-      // Bold text
-      parts.push(
-        <strong key={match.index} className={isUser ? "font-semibold" : "font-semibold text-gray-900"}>
-          {match[1]}
-        </strong>
-      );
-    } else if (match[2] !== undefined) {
-      // Citation marker
-      parts.push(
-        <sup
-          key={match.index}
-          className="text-teal-600 font-semibold cursor-help"
-          title={`Reference [${match[2]}]`}
-        >
-          [{match[2]}]
-        </sup>
-      );
-    }
-
-    last = regex.lastIndex;
-  }
-
-  // Remaining text
-  if (last < text.length) {
-    parts.push(text.slice(last));
-  }
-
-  return parts;
 }
 
 export function MessageBubble({ role, content, isStreaming }: MessageBubbleProps) {
@@ -116,9 +28,13 @@ export function MessageBubble({ role, content, isStreaming }: MessageBubbleProps
             : "bg-white border border-gray-200 text-gray-800 rounded-bl-sm shadow-sm"
         )}
       >
-        <div className="whitespace-pre-wrap break-words">
-          {renderFormattedContent(bodyText, isUser)}
-        </div>
+        {isUser ? (
+          <div className="whitespace-pre-wrap break-words">{bodyText}</div>
+        ) : (
+          <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-1 prose-p:my-1.5 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-gray-900 prose-hr:my-2 [&_sup]:text-teal-600 [&_sup]:font-semibold [&_sup]:cursor-help">
+            <ReactMarkdown>{bodyText}</ReactMarkdown>
+          </div>
+        )}
         {isStreaming && (
           <span className="inline-block w-0.5 h-4 bg-current animate-pulse ml-0.5" />
         )}

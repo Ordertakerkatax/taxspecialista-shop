@@ -1,153 +1,126 @@
 /**
  * GET /api/documents/generate
  *
- * Query parameters:
- *   - sessionToken: string  — validates the consultation session
- *   - content: string       — base64url-encoded JSON LetterContent
+ * Session-gated PDF download endpoint per D-02, D-05, D-06.
  *
- * Returns a PDF binary (application/pdf) with Content-Disposition: attachment.
+ * Query params:
+ *   session  — consultation session token (validated via validateSession)
+ *   token    — base64url-encoded LetterContent JSON (produced by encodeLetterContent)
  *
- * Error codes:
- *   400 — missing or malformed parameters
- *   401 — missing session token
- *   403 — invalid or expired session
- *   500 — PDF generation failure
+ * Security (STRIDE mitigations T-04-01 through T-04-05):
+ *   - Session validated before any PDF generation (T-04-01, T-04-05)
+ *   - Token decoded and required fields validated before PDF generation (T-04-02)
+ *   - Generic error message on failure, no stack trace exposure (T-04-03)
+ *   - URL length limits bound token size naturally (T-04-04)
+ *
+ * Documents are ephemeral (D-06): generated on demand, not stored.
+ * Cache-Control: no-store prevents caching of sensitive legal draft documents.
  */
 
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+// PDFKit requires the Node.js runtime — not compatible with Edge
+export const runtime = "nodejs";
+
+import { type NextRequest } from "next/server";
 import { validateSession } from "@/lib/session";
-import { buildLetter, type LetterContent } from "@/lib/documents/letter-types";
-import { generateLetterPdf } from "@/lib/documents/pdf-generator";
+import { letterToPdf } from "@/lib/documents";
+import type { LetterContent } from "@/lib/documents";
 
-export const runtime = "nodejs"; // pdfkit requires Node.js runtime, not Edge
+/** Minimum required fields for a valid LetterContent token. */
+const REQUIRED_FIELDS: (keyof LetterContent)[] = [
+  "date",
+  "addresseeName",
+  "bodyParagraphs",
+  "signatoryName",
+  "letterType",
+  "prayer",
+  "citations",
+];
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
+function isValidLetterContent(obj: unknown): obj is LetterContent {
+  if (!obj || typeof obj !== "object") return false;
+  const record = obj as Record<string, unknown>;
+  for (const field of REQUIRED_FIELDS) {
+    if (!(field in record)) return false;
+  }
+  // bodyParagraphs must be an array
+  if (!Array.isArray(record.bodyParagraphs)) return false;
+  // letterType must be protest, compliance, or acknowledgment
+  if (record.letterType !== "protest" && record.letterType !== "compliance" && record.letterType !== "acknowledgment") {
+    return false;
+  }
+  return true;
+}
 
-  // --------------------------------------------------------
-  // 1. Validate session token
-  // --------------------------------------------------------
-  const sessionToken = searchParams.get("sessionToken");
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const sessionToken = searchParams.get("session");
+  const letterToken = searchParams.get("token");
 
-  if (!sessionToken) {
-    return NextResponse.json(
-      { error: "Session token is required" },
+  // Both params required (T-04-01)
+  if (!sessionToken || !letterToken) {
+    return Response.json(
+      { error: "Session token and document token required" },
       { status: 401 }
     );
   }
 
-  const sessionResult = await validateSession(sessionToken);
+  // Validate session before any document generation (T-04-01, T-04-05)
+  let sessionResult;
+  try {
+    sessionResult = await validateSession(sessionToken);
+  } catch {
+    return Response.json(
+      { error: "Failed to generate document" },
+      { status: 500 }
+    );
+  }
 
   if (sessionResult.reason === "not_found") {
-    return NextResponse.json(
-      { error: "Invalid session token" },
-      { status: 403 }
-    );
+    return Response.json({ error: "Invalid session" }, { status: 403 });
   }
 
   if (sessionResult.reason === "expired") {
-    return NextResponse.json(
-      { error: "Session has expired" },
-      { status: 403 }
-    );
+    return Response.json({ error: "Session expired" }, { status: 403 });
   }
 
-  // --------------------------------------------------------
-  // 2. Decode base64url letter content
-  // --------------------------------------------------------
-  const encodedContent = searchParams.get("content");
-
-  if (!encodedContent) {
-    return NextResponse.json(
-      { error: "Letter content is required (base64url-encoded JSON)" },
-      { status: 400 }
-    );
-  }
-
+  // Decode and validate the letter content token (T-04-02)
   let letterContent: LetterContent;
-
   try {
-    // base64url → base64 → JSON
-    const base64 = encodedContent
-      .replace(/-/g, "+")
-      .replace(/_/g, "/")
-      .padEnd(encodedContent.length + ((4 - (encodedContent.length % 4)) % 4), "=");
-
-    const jsonString = Buffer.from(base64, "base64").toString("utf-8");
-    letterContent = JSON.parse(jsonString) as LetterContent;
+    const decoded = Buffer.from(letterToken, "base64url").toString("utf-8");
+    const parsed: unknown = JSON.parse(decoded);
+    if (!isValidLetterContent(parsed)) {
+      return Response.json({ error: "Invalid document token" }, { status: 400 });
+    }
+    letterContent = parsed;
   } catch {
-    return NextResponse.json(
-      { error: "Invalid letter content: could not decode or parse base64url JSON" },
-      { status: 400 }
-    );
+    return Response.json({ error: "Invalid document token" }, { status: 400 });
   }
 
-  // Basic type guard
-  if (!letterContent || !letterContent.type) {
-    return NextResponse.json(
-      { error: "Invalid letter content: missing type field" },
-      { status: 400 }
-    );
-  }
-
-  const validTypes = ["loa_reply", "protest_letter"];
-  if (!validTypes.includes(letterContent.type)) {
-    return NextResponse.json(
-      { error: `Invalid letter type: must be one of ${validTypes.join(", ")}` },
-      { status: 400 }
-    );
-  }
-
-  // --------------------------------------------------------
-  // 3. Build letter structure and generate PDF
-  // --------------------------------------------------------
+  // Generate the PDF (T-04-03: generic error on failure)
   try {
-    const letter = buildLetter(letterContent);
-    const pdfBuffer = await generateLetterPdf(letter);
+    const pdfBuffer = await letterToPdf(letterContent);
+    const filenameMap: Record<string, string> = {
+      protest: "draft-protest-letter.pdf",
+      compliance: "draft-compliance-letter.pdf",
+      acknowledgment: "draft-acknowledgment-letter.pdf",
+    };
+    const filename = filenameMap[letterContent.letterType] ?? "draft-letter.pdf";
 
-    const filename = buildFilename(letterContent);
-
-    // Use ArrayBuffer for Web API Response compatibility
-    const arrayBuffer = pdfBuffer.buffer.slice(
-      pdfBuffer.byteOffset,
-      pdfBuffer.byteOffset + pdfBuffer.byteLength
-    ) as ArrayBuffer;
-
-    return new Response(arrayBuffer, {
+    return new Response(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,
-        "Content-Length": String(pdfBuffer.byteLength),
-        // Prevent caching of sensitive documents
-        "Cache-Control": "no-store, no-cache, must-revalidate",
-        "Pragma": "no-cache",
+        // Ephemeral documents (D-06): no caching of sensitive legal drafts
+        "Cache-Control": "no-store",
+        "Content-Length": String(pdfBuffer.length),
       },
     });
-  } catch (error) {
-    console.error("[documents/generate] PDF generation failed:", error);
-    return NextResponse.json(
-      { error: "Failed to generate PDF" },
+  } catch {
+    // Generic error — do not expose stack traces or internal paths (T-04-03)
+    return Response.json(
+      { error: "Failed to generate document" },
       { status: 500 }
     );
-  }
-}
-
-// ============================================================
-// Helpers
-// ============================================================
-
-function buildFilename(content: LetterContent): string {
-  const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const tin = content.metadata.taxpayerTin.replace(/[^0-9]/g, "");
-
-  switch (content.type) {
-    case "loa_reply":
-      return `LOA-Reply-DRAFT-${tin}-${timestamp}.pdf`;
-    case "protest_letter":
-      return `Protest-Letter-DRAFT-${tin}-${content.assessmentType}-${timestamp}.pdf`;
-    default:
-      return `Letter-DRAFT-${timestamp}.pdf`;
   }
 }

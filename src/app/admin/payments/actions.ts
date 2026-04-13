@@ -8,6 +8,7 @@ import { sendPaymentApprovedEmail, sendPaymentRejectedEmail } from "@/lib/email"
 import { SESSION_EXPIRY_HOURS } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
+import { updateEscalationStatus } from "@/lib/escalation";
 
 export async function approvePayment(paymentId: string) {
   // Verify admin auth server-side (defense in depth beyond middleware)
@@ -65,6 +66,19 @@ export async function rejectPayment(paymentId: string, reason: string) {
 
   // Email user with rejection reason
   await sendPaymentRejectedEmail(payment.email, reason);
+
+  revalidatePath("/admin/payments");
+}
+
+export async function updateEscalation(
+  escalationId: string,
+  status: "reviewed" | "resolved",
+  reviewerNotes?: string
+) {
+  const session = await auth();
+  if (!session.userId) throw new Error("Unauthorized");
+
+  await updateEscalationStatus(escalationId, status, reviewerNotes);
 
   revalidatePath("/admin/payments");
 }

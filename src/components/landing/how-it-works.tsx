@@ -3,18 +3,18 @@ import { Card, CardContent } from "@/components/ui/card";
 const steps = [
   {
     number: 1,
-    title: "Choose your plan",
-    description: "Select the consultation tier that fits your BIR dispute needs -- Basic for straightforward cases, Comprehensive for complex matters.",
+    title: "Tell us what you received",
+    description: "Choose a plan and pay via GCash or bank transfer. No credit card needed.",
   },
   {
     number: 2,
-    title: "Pay via GCash or bank transfer",
-    description: "Send payment using GCash or bank transfer. No credit card required. Payment confirmation is quick and simple.",
+    title: "Get immediate clarity",
+    description: "Our AI consultant identifies your deadlines, explains the risks, and drafts an acknowledgment letter to establish your cooperative stance with the BIR.",
   },
   {
     number: 3,
-    title: "Get your consultation link",
-    description: "Once your payment is verified, you will receive a secure consultation link by email to start your 24-hour AI-powered session.",
+    title: "Know your next steps",
+    description: "Receive actionable guidance with legal citations. For complex cases, get a warm referral to ETM Tax Agent Office for professional representation.",
   },
 ];
 

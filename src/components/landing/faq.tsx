@@ -10,43 +10,43 @@ const faqs = [
     id: "faq-1",
     question: "What do I get with a consultation?",
     answer:
-      "You receive AI-powered guidance on your specific BIR tax dispute, including relevant legal citations from the NIRC, Revenue Memorandum Orders (RMOs), and Revenue Regulations (RRs). You also get step-by-step action items and response deadline tracking -- all within a 24-hour consultation window.",
+      "You get immediate clarity on your BIR situation: what the document means, your reglementary deadline to respond, the risks of inaction, and a draft acknowledgment letter you can file to establish your cooperative stance. The Comprehensive plan adds full advisory with defense strategies and draft response letters.",
   },
   {
     id: "faq-2",
-    question: "How does the consultation work?",
+    question: "What types of BIR correspondence does this cover?",
     answer:
-      "After payment is verified, you receive a secure consultation link by email. You can describe your BIR dispute situation in the chat, and our AI system will provide legally-grounded guidance. The Basic plan covers LOA responses and initial compliance questions; the Comprehensive plan provides in-depth analysis with multiple defense strategies.",
+      "We cover all major BIR correspondence types: Letter of Authority (LOA), Subpoena Duces Tecum (SDT), Notice for Informal Conference (NIC), Notice of Discrepancy (NOD), Preliminary Assessment Notice (PAN), Final Assessment Notice (FAN), and Final Decision on Disputed Assessment (FDDA). For LOA and SDT, we provide full advisory and document drafting. For assessment notices, we provide acknowledgment letters and general guidance with referral to professional representation.",
   },
   {
     id: "faq-3",
     question: "Is this legal or tax advice?",
     answer:
-      "No. This service provides AI-generated guidance for informational purposes only. It is not formal legal or tax advice and does not create a professional-client relationship. For formal representation or complex matters, we recommend engaging a licensed CPA or tax attorney.",
+      "No. This service provides AI-generated guidance for informational purposes only. It is not formal legal or tax advice and does not create a professional-client relationship. All draft documents carry a DRAFT watermark and should be reviewed by a licensed CPA or tax attorney before filing. For complex matters, we can refer you to ETM Tax Agent Office for professional representation.",
   },
   {
     id: "faq-4",
     question: "How long is the consultation session?",
     answer:
-      "Each consultation session is valid for 24 hours from the time your payment is verified and your consultation link is activated. During this window, you can ask multiple questions related to your BIR dispute.",
+      "Each session is valid for 24 hours from activation. The Basic plan includes up to 50 messages; the Comprehensive plan includes up to 100 messages. Most consultations complete within 30 to 60 minutes.",
   },
   {
     id: "faq-5",
     question: "What payment methods are accepted?",
     answer:
-      "We accept GCash (via QR code or GCash number) and bank transfer. No credit card required. After sending payment, you submit your reference number through this website, and we will verify and activate your consultation.",
+      "We accept GCash and bank transfer. No credit card required. After sending payment, submit your reference number through this website. Once verified, your consultation link is sent to your email.",
   },
   {
     id: "faq-6",
-    question: "What BIR stages does this cover?",
-    answer:
-      "In the current version (v1), TaxSpecialista Consult focuses on Letter of Authority (LOA) proceedings -- the initial stage when the BIR notifies you of an examination. This includes responding to LOAs, providing documents, and understanding your rights during the audit process.",
-  },
-  {
-    id: "faq-7",
     question: "How long does payment verification take?",
     answer:
       "Payment verification typically takes a few hours during business hours (Monday to Friday, 9 AM to 6 PM Philippine time). Once verified, you will receive your consultation link by email immediately.",
+  },
+  {
+    id: "faq-7",
+    question: "What if my case is too complex for the AI?",
+    answer:
+      "Our system automatically detects complex cases involving large tax amounts, fraud allegations, or multiple tax periods. When complexity is flagged, a licensed CPA from ETM Tax Agent Office reviews your case and reaches out to you directly. This is included at no extra cost.",
   },
 ];
 
