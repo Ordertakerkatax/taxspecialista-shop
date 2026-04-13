@@ -19,7 +19,7 @@ const tierFeatures: Record<TierKey, string[]> = {
     "Full LOA and SDT advisory with defense strategies",
     "Draft protest, compliance, and SDT response letters",
     "Prescription period and waiver validity checks",
-    "Complexity assessment with CPA referral",
+    "Complexity assessment with tax professional referral",
     "24-hour consultation window (100 messages)",
   ],
 };
