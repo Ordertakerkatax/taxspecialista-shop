@@ -32,7 +32,7 @@ export interface LetterContent {
   /** Legal citations listed in the footer */
   citations: string[];
   /** Letter type — determines filename in download header */
-  letterType: "protest" | "compliance" | "acknowledgment";
+  letterType: "protest" | "compliance" | "nod-response" | "acknowledgment";
 }
 
 /** Input for generating a Protest Letter (LOA stage). */
@@ -76,7 +76,7 @@ export type BirCorrespondenceType = "LOA" | "NOD" | "PAN" | "FAN" | "FDDA";
 /** Fixed reglementary periods per correspondence type (in calendar days). */
 export const REGLEMENTARY_PERIODS: Record<BirCorrespondenceType, { days: number; basis: string }> = {
   LOA: { days: 120, basis: "RMO 44-2010 — LOA validity period from date of issuance" },
-  NOD: { days: 15, basis: "RR 12-99, as amended — Response to Notice of Discrepancy" },
+  NOD: { days: 30, basis: "RR 22-2020 — Response to Notice of Discrepancy (Discussion of Discrepancy period)" },
   PAN: { days: 15, basis: "NIRC Section 228 — Protest to Preliminary Assessment Notice" },
   FAN: { days: 30, basis: "NIRC Section 228 — Protest to Final Assessment Notice / Formal Letter of Demand" },
   FDDA: { days: 30, basis: "NIRC Section 228 — Appeal of Final Decision on Disputed Assessment" },
@@ -94,7 +94,7 @@ export const CORRESPONDENCE_LABELS: Record<BirCorrespondenceType, string> = {
 /** Predefined intended actions for acknowledgment letters. */
 export const INTENDED_ACTIONS: Record<BirCorrespondenceType, string> = {
   LOA: "comply with the audit requirements and submit the requested documents within the prescribed period",
-  NOD: "submit a written explanation addressing the discrepancies noted",
+  NOD: "submit rebuttal documents addressing the specific discrepancy findings within the 30-day period provided under RR 22-2020",
   PAN: "file a formal protest within the reglementary period provided by law",
   FAN: "file an administrative protest within thirty (30) days from receipt as provided under Section 228 of the NIRC",
   FDDA: "elevate the matter to the Court of Tax Appeals within thirty (30) days from receipt as provided under the Rules of the CTA",
@@ -124,6 +124,42 @@ export interface AcknowledgmentLetterInput {
   addresseeOffice: string;
   /** Mailing address of the addressee */
   addresseeAddress: string;
+}
+
+/** Input for generating a NOD Response Letter (Notice of Discrepancy stage). */
+export interface NodResponseLetterInput {
+  /** Full name of the taxpayer */
+  taxpayerName: string;
+  /** Taxpayer identification number */
+  tin: string;
+  /** Taxpayer mailing address */
+  taxpayerAddress: string;
+  /** LOA number under which the NOD was issued */
+  loaNumber: string;
+  /** NOD reference number or date identifier */
+  nodReferenceNumber: string;
+  /** Date the taxpayer received the NOD (spelled out, e.g. "April 7, 2026") */
+  nodReceiptDate: string;
+  /** Tax types covered (e.g. ["Income Tax", "VAT"]) */
+  taxTypes: string[];
+  /** Taxable period covered */
+  taxPeriod: string;
+  /** Specific discrepancy findings from the NOD — each item should state the tax type, nature of discrepancy, and amount */
+  discrepancyFindings: string[];
+  /** Total assessed discrepancy amount (e.g. "PHP 1,250,000.00") */
+  totalDiscrepancyAmount: string;
+  /** Whether the taxpayer elects to attend the Discussion of Discrepancy in person */
+  electsToAttendDod: boolean;
+  /** Documents the taxpayer pledges to submit to rebut the findings */
+  rebuttalDocuments: string[];
+  /** Legal citations supporting the taxpayer's response */
+  legalCitations: string[];
+  /** Full name/title of the Revenue Officer */
+  revenueOfficerName: string;
+  /** Office of the Revenue Officer */
+  revenueOfficerOffice: string;
+  /** Mailing address of the Revenue Officer's office */
+  revenueOfficerAddress: string;
 }
 
 /** Input for generating a Compliance Reply Letter (LOA stage). */

@@ -103,6 +103,7 @@ export async function GET(request: NextRequest) {
     const filenameMap: Record<string, string> = {
       protest: "draft-protest-letter.pdf",
       compliance: "draft-compliance-letter.pdf",
+      "nod-response": "draft-nod-response-letter.pdf",
       acknowledgment: "draft-acknowledgment-letter.pdf",
     };
     const filename = filenameMap[letterContent.letterType] ?? "draft-letter.pdf";

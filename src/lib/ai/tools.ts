@@ -1,7 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { calculateDeadlines, calculatePrescription, checkWaiverValidity } from "@/lib/legal";
-import { buildProtestLetter, buildComplianceLetter, buildAcknowledgmentLetter, encodeLetterContent, REGLEMENTARY_PERIODS, CORRESPONDENCE_LABELS } from "@/lib/documents";
+import { buildProtestLetter, buildComplianceLetter, buildNodResponseLetter, buildAcknowledgmentLetter, encodeLetterContent, REGLEMENTARY_PERIODS, CORRESPONDENCE_LABELS } from "@/lib/documents";
 import type { BirCorrespondenceType } from "@/lib/documents";
 import { createEscalation } from "@/lib/escalation";
 import { sendEscalationNotificationEmail } from "@/lib/email";
@@ -169,6 +169,54 @@ export function createDocumentTools(sessionToken: string) {
     },
   });
 
+  const generateNodResponseLetterTool = tool({
+    description:
+      "Generate a draft NOD (Notice of Discrepancy) response letter. This letter acknowledges the specific discrepancy findings and amounts, asserts the taxpayer's right to the full 30-day Discussion of Discrepancy period under RR 22-2020, states whether the taxpayer will attend the DOD in person or submit a written response, and pledges to submit rebuttal documents. Call this ONLY for NOD-stage cases after gathering all intake facts including the specific discrepancy findings and amounts.",
+    inputSchema: z.object({
+      taxpayerName: z.string().describe("Full legal name of the taxpayer as registered with BIR"),
+      tin: z.string().describe("Taxpayer Identification Number (TIN), e.g. '123-456-789-000'"),
+      taxpayerAddress: z.string().describe("Taxpayer's registered mailing address"),
+      loaNumber: z.string().describe("Letter of Authority number under which the NOD was issued"),
+      nodReferenceNumber: z.string().describe("NOD reference number or date identifier as printed on the NOD"),
+      nodReceiptDate: z.string().describe("Date the taxpayer received the NOD, spelled out (e.g. 'April 7, 2026')"),
+      taxTypes: z.array(z.string()).describe("Tax types covered (e.g. ['Income Tax', 'VAT'])"),
+      taxPeriod: z.string().describe("Taxable period covered (e.g. 'Taxable Year 2024')"),
+      discrepancyFindings: z
+        .array(z.string())
+        .describe("Specific discrepancy findings from the NOD — each should state the tax type, nature of discrepancy, and amount (e.g. 'Income Tax — Underdeclared sales per third-party information: PHP 500,000.00')"),
+      totalDiscrepancyAmount: z
+        .string()
+        .describe("Total assessed discrepancy amount as stated in the NOD (e.g. 'PHP 1,250,000.00')"),
+      electsToAttendDod: z
+        .boolean()
+        .describe("True if the taxpayer elects to attend the Discussion of Discrepancy in person; false if they will submit a written response instead"),
+      rebuttalDocuments: z
+        .array(z.string())
+        .describe("Documents the taxpayer pledges to submit to rebut the specific findings (e.g. 'Sales invoices and official receipts for the period showing correct revenue figures')"),
+      legalCitations: z
+        .array(z.string())
+        .describe("Legal citations (e.g. ['RR 22-2020 — Notice of Discrepancy and Discussion of Discrepancy', 'NIRC Section 228'])"),
+      revenueOfficerName: z.string().describe("Full name/title of the Revenue Officer (e.g. 'Revenue Officer Juan Santos')"),
+      revenueOfficerOffice: z.string().describe("Office of the Revenue Officer (e.g. 'Revenue District Office No. 32')"),
+      revenueOfficerAddress: z.string().describe("Mailing address of the Revenue Officer's office"),
+    }),
+    execute: async (input) => {
+      const letterContent = buildNodResponseLetter(input);
+      const token = encodeLetterContent(letterContent);
+      const downloadUrl = `/api/documents/generate?session=${sessionToken}&token=${token}`;
+      return {
+        downloadUrl,
+        letterType: "nod-response" as const,
+        taxpayerName: input.taxpayerName,
+        loaNumber: input.loaNumber,
+        nodReferenceNumber: input.nodReferenceNumber,
+        totalDiscrepancyAmount: input.totalDiscrepancyAmount,
+        electsToAttendDod: input.electsToAttendDod,
+        rebuttalDocumentsCount: input.rebuttalDocuments.length,
+      };
+    },
+  });
+
   const generateAcknowledgmentLetterTool = tool({
     description:
       "Generate a draft acknowledgment letter for any BIR correspondence (LOA, NOD, PAN, FAN, FDDA). This establishes the taxpayer's cooperative stance and documents awareness of the reglementary period. Call this after identifying the correspondence type and gathering taxpayer details.",
@@ -210,6 +258,7 @@ export function createDocumentTools(sessionToken: string) {
   return {
     generateProtestLetter: generateProtestLetterTool,
     generateComplianceLetter: generateComplianceLetterTool,
+    generateNodResponseLetter: generateNodResponseLetterTool,
     generateAcknowledgmentLetter: generateAcknowledgmentLetterTool,
   };
 }

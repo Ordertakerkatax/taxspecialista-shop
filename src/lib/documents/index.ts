@@ -1,9 +1,9 @@
 // Types
-export type { LetterContent, ProtestLetterInput, ComplianceLetterInput, AcknowledgmentLetterInput, BirCorrespondenceType } from "./letter-types";
+export type { LetterContent, ProtestLetterInput, ComplianceLetterInput, NodResponseLetterInput, AcknowledgmentLetterInput, BirCorrespondenceType } from "./letter-types";
 export { REGLEMENTARY_PERIODS, CORRESPONDENCE_LABELS, INTENDED_ACTIONS } from "./letter-types";
 
 // Builders
-export { buildProtestLetter, buildComplianceLetter, buildAcknowledgmentLetter } from "./letter-builder";
+export { buildProtestLetter, buildComplianceLetter, buildNodResponseLetter, buildAcknowledgmentLetter } from "./letter-builder";
 
 // PDF generation
 export { letterToPdf } from "./pdf-generator";

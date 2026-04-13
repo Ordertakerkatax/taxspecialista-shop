@@ -3,7 +3,7 @@
  *
  * Encodes Philippine BIR deadline rules as a pure, deterministic function:
  * - LOA 120-day validity (RMO 44-2010)
- * - NOD 15-day response window (RR 12-99)
+ * - NOD 30-day Discussion of Discrepancy period (RR 22-2020)
  * - PAN 30-day protest period (NIRC Section 228 / RR 12-99)
  *
  * No external dependencies. No side effects.
@@ -17,7 +17,7 @@ export interface DeadlineInput {
   loaReceiptDate: string;
   /** Date LOA was issued by the BIR (ISO 8601). Triggers 120-day validity window. */
   loaIssuanceDate?: string;
-  /** Date Notice of Discrepancy was received (ISO 8601). Triggers 15-day response window. */
+  /** Date Notice of Discrepancy was received (ISO 8601). Triggers 30-day Discussion of Discrepancy period per RR 22-2020. */
   nodReceiptDate?: string;
   /** Date Preliminary Assessment Notice was received (ISO 8601). Triggers 30-day protest window. */
   panReceiptDate?: string;
@@ -85,17 +85,17 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
     }
   }
 
-  // NOD 15-day response window — starts from nodReceiptDate
+  // NOD 30-day Discussion of Discrepancy period — starts from nodReceiptDate
   if (nodReceiptDate) {
-    const dueDate = addDays(nodReceiptDate, 15);
+    const dueDate = addDays(nodReceiptDate, 30);
     const daysRemaining = daysUntil(dueDate);
     const isOverdue = daysRemaining < 0;
     deadlines.push({
-      name: "NOD Response Deadline",
+      name: "NOD Discussion of Discrepancy Deadline",
       dueDate,
       daysRemaining,
       legalBasis:
-        "Taxpayer must respond to the Notice of Discrepancy within 15 days of receipt per RR 12-99.",
+        "Taxpayer has 30 days from receipt of the Notice of Discrepancy to attend the Discussion of Discrepancy and/or submit rebuttal documents per RR 22-2020.",
       isOverdue,
     });
   }

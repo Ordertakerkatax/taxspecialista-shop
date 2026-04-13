@@ -2,6 +2,7 @@ import type {
   LetterContent,
   ProtestLetterInput,
   ComplianceLetterInput,
+  NodResponseLetterInput,
   AcknowledgmentLetterInput,
 } from "./letter-types";
 import {
@@ -217,6 +218,131 @@ export function buildComplianceLetter(
     signatoryAddress: taxpayerAddress,
     citations: legalCitations,
     letterType: "compliance",
+  };
+}
+
+/**
+ * Build a NOD Response Letter from NodResponseLetterInput.
+ *
+ * Structure:
+ * - Opening paragraph: acknowledge receipt of NOD with reference to LOA
+ * - Discrepancy findings paragraph: enumerate the specific findings and amounts from the NOD
+ * - 30-day period acknowledgment: cite RR 22-2020 and the taxpayer's right to the full period
+ * - DOD election: state whether taxpayer will attend in person or submit written response
+ * - Rebuttal documents pledge: list specific documents to be submitted addressing the findings
+ * - Reservation clause prayer
+ */
+export function buildNodResponseLetter(
+  input: NodResponseLetterInput
+): LetterContent {
+  const {
+    taxpayerName,
+    tin,
+    taxpayerAddress,
+    loaNumber,
+    nodReferenceNumber,
+    nodReceiptDate,
+    taxTypes,
+    taxPeriod,
+    discrepancyFindings,
+    totalDiscrepancyAmount,
+    electsToAttendDod,
+    rebuttalDocuments,
+    legalCitations,
+    revenueOfficerName,
+    revenueOfficerOffice,
+    revenueOfficerAddress,
+  } = input;
+
+  const date = spelledOutDate();
+
+  const bodyParagraphs: string[] = [];
+
+  // Opening: acknowledge receipt of NOD under the LOA
+  bodyParagraphs.push(
+    `Undersigned taxpayer ${taxpayerName}, with Taxpayer Identification Number (TIN) ${tin}, ` +
+      `hereby respectfully acknowledges receipt on ${nodReceiptDate} of the Notice of Discrepancy ` +
+      `(Reference: ${nodReferenceNumber}) issued in connection with Letter of Authority No. ${loaNumber}, ` +
+      `covering ${taxTypes.join(" and ")} for the taxable period ${taxPeriod}.`
+  );
+
+  // Discrepancy findings with amounts
+  bodyParagraphs.push(
+    `The undersigned takes note of the following discrepancy findings as stated in the Notice of Discrepancy:`
+  );
+  discrepancyFindings.forEach((finding, index) => {
+    bodyParagraphs.push(`    ${index + 1}. ${finding}`);
+  });
+  bodyParagraphs.push(
+    `The total discrepancy amount as reflected in the NOD is ${totalDiscrepancyAmount}.`
+  );
+
+  // 30-day period acknowledgment per RR 22-2020
+  bodyParagraphs.push(
+    `Pursuant to Revenue Regulations No. 22-2020, the undersigned acknowledges the right to a ` +
+      `Discussion of Discrepancy within thirty (30) days from receipt of the Notice of Discrepancy. ` +
+      `The undersigned intends to fully exercise this right and to present supporting documents and ` +
+      `explanations addressing the above-noted findings within the prescribed period.`
+  );
+
+  // DOD election
+  if (electsToAttendDod) {
+    bodyParagraphs.push(
+      `The undersigned hereby elects to attend the Discussion of Discrepancy in person ` +
+        `and requests that the schedule thereof be communicated at the earliest opportunity. ` +
+        `The undersigned shall present and discuss the supporting documents and explanations ` +
+        `during the said conference.`
+    );
+  } else {
+    bodyParagraphs.push(
+      `In lieu of personal attendance at the Discussion of Discrepancy, the undersigned elects to ` +
+        `submit a written response together with the supporting documents enumerated below, ` +
+        `in accordance with the procedures prescribed under RR 22-2020.`
+    );
+  }
+
+  // Rebuttal documents pledge
+  if (rebuttalDocuments.length > 0) {
+    const docList = rebuttalDocuments
+      .map((doc, i) => `    ${i + 1}. ${doc}`)
+      .join("\n");
+    bodyParagraphs.push(
+      `To address the specific discrepancy findings, the undersigned pledges to submit the following ` +
+        `documents in rebuttal:\n${docList}`
+    );
+  }
+
+  // Subject line
+  const subjectLine =
+    `RESPONSE TO NOTICE OF DISCREPANCY (REF: ${nodReferenceNumber})` +
+    ` / LOA NO. ${loaNumber}` +
+    ` / TAX TYPE: ${taxTypes.join(", ")}` +
+    ` / TAXABLE PERIOD: ${taxPeriod}`;
+
+  // Reservation clause prayer
+  const prayer =
+    `ACCORDINGLY, undersigned taxpayer respectfully submits this response to the Notice of Discrepancy ` +
+    `(Reference: ${nodReferenceNumber}) issued under Letter of Authority No. ${loaNumber}, without ` +
+    `prejudice to and expressly RESERVING all rights, defenses, and remedies that may be available ` +
+    `under existing laws, rules, and regulations, including but not limited to the right to file a ` +
+    `protest at the appropriate stage of the proceedings should a Preliminary Assessment Notice be issued. ` +
+    `Other reliefs just and equitable in the premises are likewise prayed for.`;
+
+  return {
+    date,
+    addresseeName: revenueOfficerName,
+    addresseeTitle: "Revenue Officer",
+    addresseeOffice: revenueOfficerOffice,
+    addresseeAddress: revenueOfficerAddress,
+    subjectLine,
+    salutation: "Dear Sir/Madam:",
+    bodyParagraphs,
+    prayer,
+    signatoryName: taxpayerName.toUpperCase(),
+    signatoryTin: tin,
+    signatoryAddress: taxpayerAddress,
+    citations: legalCitations,
+    letterType: "nod-response",
   };
 }
 
