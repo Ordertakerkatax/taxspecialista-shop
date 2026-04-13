@@ -39,12 +39,13 @@ export async function sendPaymentApprovedEmail(
   const resend = getResend();
   if (!resend) return;
   const consultUrl = `${process.env.NEXT_PUBLIC_APP_URL}/consult/${sessionToken}`;
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: FROM_EMAIL,
     to: userEmail,
     subject: "Your TaxSpecialista Consultation is Ready",
     react: PaymentApprovedEmail({ consultUrl, expiresAt }),
   });
+  console.log("[email] Resend response:", JSON.stringify(result));
 }
 
 export async function sendPaymentRejectedEmail(

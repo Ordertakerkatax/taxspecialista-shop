@@ -43,8 +43,9 @@ export async function approvePayment(paymentId: string) {
   // Email user with session link (D-03)
   try {
     await sendPaymentApprovedEmail(payment.email, sessionToken, expiresAt);
+    console.log("[admin] Approval email sent to:", payment.email);
   } catch (e) {
-    console.warn("[admin] Approval email failed:", (e as Error).message);
+    console.error("[admin] Approval email failed:", JSON.stringify(e, null, 2));
   }
 
   revalidatePath("/admin/payments");
@@ -71,8 +72,9 @@ export async function rejectPayment(paymentId: string, reason: string) {
   // Email user with rejection reason
   try {
     await sendPaymentRejectedEmail(payment.email, reason);
+    console.log("[admin] Rejection email sent to:", payment.email);
   } catch (e) {
-    console.warn("[admin] Rejection email failed:", (e as Error).message);
+    console.error("[admin] Rejection email failed:", JSON.stringify(e, null, 2));
   }
 
   revalidatePath("/admin/payments");
