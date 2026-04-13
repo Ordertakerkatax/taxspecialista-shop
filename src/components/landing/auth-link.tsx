@@ -18,7 +18,7 @@ export function AuthLink() {
         >
           My Account
         </Link>
-        <UserButton afterSignOutUrl="/" />
+        <UserButton />
       </div>
     );
   }
