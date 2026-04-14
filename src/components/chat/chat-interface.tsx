@@ -121,16 +121,16 @@ export function ChatInterface({
           </div>
           <div className="flex items-center gap-2">
             {!readOnly && timeLeft && (
-              <div className={`flex items-center gap-1.5 text-xs font-medium ${
+              <div className={`flex items-center gap-1.5 text-xs ${
                 urgency === "critical" ? "text-red-600" :
                 urgency === "warning" ? "text-amber-600" :
                 "text-gray-500"
               }`}>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                {timeLeft}
+                <span>Session expires in: <strong>{timeLeft}</strong></span>
               </div>
             )}
             {readOnly && (
@@ -163,9 +163,6 @@ export function ChatInterface({
               <div className="flex items-center justify-between mb-1">
                 <span className={`text-[11px] font-medium ${textColor}`}>
                   {label}
-                </span>
-                <span className="text-[11px] text-gray-400">
-                  {used}/{maxMessages}
                 </span>
               </div>
               <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
