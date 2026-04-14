@@ -72,33 +72,61 @@ export function ChatInterface({
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)] max-w-[768px] mx-auto bg-gray-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold text-gray-900">
-            TaxSpecialista Consult
-          </h1>
-          <Badge variant="outline" className="text-xs">
-            {tier === "comprehensive" ? "Comprehensive" : "Basic"}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-2">
-          {!readOnly && (() => {
-            const maxMessages = tier === "comprehensive" ? 100 : 50;
-            const used = messages.length;
-            const remaining = Math.max(0, maxMessages - used);
-            const lowCredits = remaining <= Math.floor(maxMessages * 0.2);
-            return (
-              <span className={`text-xs ${lowCredits ? "text-amber-600 font-medium" : "text-gray-400"}`}>
-                {remaining}/{maxMessages} remaining
-              </span>
-            );
-          })()}
-          {readOnly && (
-            <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
-              Read Only
+      <div className="bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold text-gray-900">
+              TaxSpecialista Consult
+            </h1>
+            <Badge variant="outline" className="text-xs">
+              {tier === "comprehensive" ? "Comprehensive" : "Basic"}
             </Badge>
-          )}
+          </div>
+          <div className="flex items-center gap-2">
+            {readOnly && (
+              <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
+                Read Only
+              </Badge>
+            )}
+          </div>
         </div>
+        {/* Credit usage bar */}
+        {!readOnly && (() => {
+          const maxMessages = tier === "comprehensive" ? 100 : 50;
+          const used = messages.length;
+          const remaining = Math.max(0, maxMessages - used);
+          const pct = Math.min(100, (used / maxMessages) * 100);
+          // Color transitions: teal (0-60%) → amber (60-85%) → red (85-100%)
+          const barColor =
+            pct <= 60 ? "bg-teal-500" :
+            pct <= 85 ? "bg-amber-500" :
+            "bg-red-500";
+          const textColor =
+            pct <= 60 ? "text-teal-600" :
+            pct <= 85 ? "text-amber-600" :
+            "text-red-600";
+          const label =
+            remaining === 0 ? "No messages remaining" :
+            `${remaining} message${remaining === 1 ? "" : "s"} remaining`;
+          return (
+            <div className="px-4 pb-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-[11px] font-medium ${textColor}`}>
+                  {label}
+                </span>
+                <span className="text-[11px] text-gray-400">
+                  {used}/{maxMessages}
+                </span>
+              </div>
+              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ease-out ${barColor}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Messages */}
