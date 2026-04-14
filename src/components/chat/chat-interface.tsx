@@ -87,9 +87,10 @@ export function ChatInterface({
 
   const isLoading = status === "submitted" || status === "streaming";
 
-  // Detect message limit reached (429) vs other errors
+  // Count only user messages — AI responses don't consume credits
   const maxMessages = tier === "comprehensive" ? 100 : 50;
-  const limitReached = messages.length >= maxMessages ||
+  const userMessageCount = messages.filter((m) => m.role === "user").length;
+  const limitReached = userMessageCount >= maxMessages ||
     (error && "message" in error && /limit/i.test(error.message));
 
   useEffect(() => {
@@ -140,12 +141,10 @@ export function ChatInterface({
             )}
           </div>
         </div>
-        {/* Credit usage bar */}
+        {/* Credit usage bar — counts user messages only */}
         {!readOnly && (() => {
-          const maxMessages = tier === "comprehensive" ? 100 : 50;
-          const used = messages.length;
-          const remaining = Math.max(0, maxMessages - used);
-          const pct = Math.min(100, (used / maxMessages) * 100);
+          const remaining = Math.max(0, maxMessages - userMessageCount);
+          const pct = Math.min(100, (userMessageCount / maxMessages) * 100);
           // Color transitions: teal (0-60%) → amber (60-85%) → red (85-100%)
           const barColor =
             pct <= 60 ? "bg-teal-500" :

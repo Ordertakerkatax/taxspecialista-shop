@@ -5,7 +5,7 @@ import { buildSystemPrompt } from "@/lib/ai/system-prompt";
 import { validateSession } from "@/lib/session";
 import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 // Extract text content from a message (handles both v6 parts[] and legacy content string)
 function getMessageText(msg: Record<string, unknown>): string {
@@ -64,13 +64,16 @@ export async function POST(req: Request) {
   const docTools = createDocumentTools(sessionToken);
   const escTools = createEscalationTools(session.id, session.email);
 
-  // Check message limit
+  // Check message limit (counted by user messages only — AI responses don't consume credits)
   const maxMessages = tier === "comprehensive" ? MAX_MESSAGES_COMPREHENSIVE : MAX_MESSAGES_BASIC;
-  const existingCount = await db.select({ id: chatMessages.id })
+  const existingUserMessages = await db.select({ id: chatMessages.id })
     .from(chatMessages)
-    .where(eq(chatMessages.sessionId, session.id));
+    .where(and(
+      eq(chatMessages.sessionId, session.id),
+      eq(chatMessages.role, "user"),
+    ));
 
-  if (existingCount.length >= maxMessages) {
+  if (existingUserMessages.length >= maxMessages) {
     return new Response(
       JSON.stringify({ error: "Message limit reached for this consultation tier" }),
       { status: 429, headers: { "Content-Type": "application/json" } }
