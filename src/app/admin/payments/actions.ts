@@ -30,7 +30,6 @@ export async function approvePayment(paymentId: string) {
 
   const sessionToken = randomUUID();
   const activatedAt = new Date();
-  const expiresAt = new Date(activatedAt.getTime() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
 
   // Only approve if currently pending (prevent double-approve per Pitfall 4)
   const [payment] = await db.update(paymentSubmissions)
@@ -43,7 +42,10 @@ export async function approvePayment(paymentId: string) {
 
   if (!payment) throw new Error("Payment not found or already processed");
 
-  // Create consultation session (D-07: 24h expiry, D-08: one payment = one session)
+  const tier = payment.tier as keyof typeof SESSION_EXPIRY_HOURS;
+  const expiresAt = new Date(activatedAt.getTime() + SESSION_EXPIRY_HOURS[tier] * 60 * 60 * 1000);
+
+  // Create consultation session (tier-based expiry, one payment = one session)
   await db.insert(consultationSessions).values({
     paymentId,
     email: payment.email,

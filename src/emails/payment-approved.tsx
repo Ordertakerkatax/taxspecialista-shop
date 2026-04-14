@@ -64,7 +64,7 @@ export default function PaymentApprovedEmail({
             TaxSpecialista Consult — This link is unique to your consultation. Do not share it.
           </Text>
           <Text style={{ fontSize: "11px", color: "#bbbbbb", marginTop: "8px" }}>
-            Disclaimer: This consultation provides AI-assisted guidance based on Philippine tax law. It is not formal legal or tax advice. For complex matters, consult a licensed CPA or tax attorney.
+            Disclaimer: This consultation provides AI-assisted guidance based on Philippine tax law. It is not formal legal or tax advice. For complex matters, consult a licensed tax professional or tax attorney.
           </Text>
         </Container>
       </Body>

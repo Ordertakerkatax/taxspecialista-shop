@@ -61,8 +61,6 @@ export async function POST(req: Request) {
 
   const session = sessionResult.session;
   const tier = session.tier as "basic" | "comprehensive";
-  const docTools = createDocumentTools(sessionToken);
-  const escTools = createEscalationTools(session.id, session.email);
 
   // Check message limit (counted by user messages only — AI responses don't consume credits)
   const maxMessages = tier === "comprehensive" ? MAX_MESSAGES_COMPREHENSIVE : MAX_MESSAGES_BASIC;
@@ -110,10 +108,26 @@ export async function POST(req: Request) {
         calculateDeadlines: calculateDeadlinesTool,
         calculatePrescription: calculatePrescriptionTool,
         checkWaiverValidity: checkWaiverValidityTool,
-        generateComplianceLetter: docTools.generateComplianceLetter,
-        generateNodResponseLetter: docTools.generateNodResponseLetter,
-        generateAcknowledgmentLetter: docTools.generateAcknowledgmentLetter,
-        assessComplexity: escTools.assessComplexity,
+        // Tier-based tool registration:
+        // Basic: only acknowledgment letters, no escalation
+        // Comprehensive: all document tools + escalation
+        ...(tier === "comprehensive"
+          ? (() => {
+              const docTools = createDocumentTools(sessionToken);
+              const escTools = createEscalationTools(session.id, session.email);
+              return {
+                generateComplianceLetter: docTools.generateComplianceLetter,
+                generateNodResponseLetter: docTools.generateNodResponseLetter,
+                generateAcknowledgmentLetter: docTools.generateAcknowledgmentLetter,
+                assessComplexity: escTools.assessComplexity,
+              };
+            })()
+          : (() => {
+              const docTools = createDocumentTools(sessionToken);
+              return {
+                generateAcknowledgmentLetter: docTools.generateAcknowledgmentLetter,
+              };
+            })()),
       },
       stopWhen: stepCountIs(5),
       onFinish: async ({ text }) => {

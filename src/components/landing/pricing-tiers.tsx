@@ -8,18 +8,19 @@ import { CheckIcon } from "lucide-react";
 
 const tierFeatures: Record<TierKey, string[]> = {
   basic: [
-    "Deadline and reglementary period calculations",
-    "Risk assessment for your BIR situation",
-    "Draft acknowledgment letter (all BIR correspondence types)",
+    "AI-powered situation analysis",
+    "Deadline and prescription computation",
+    "Risk assessment and next steps",
+    "Draft acknowledgment letter",
     "Legal basis citations (NIRC, RMOs, RRs)",
-    "24-hour consultation window (50 messages)",
+    "12-hour consultation window (30 messages)",
   ],
   comprehensive: [
-    "Everything in Basic, plus:",
-    "Full LOA and SDT advisory with defense strategies",
-    "Draft compliance and SDT response letters",
+    "Everything in Quick Guidance, plus:",
+    "Draft compliance, NOD response, and acknowledgment letters",
+    "Defense strategy with legal citations",
     "Prescription period and waiver validity checks",
-    "Complexity assessment with tax professional referral",
+    "Escalation to tax professional for complex cases",
     "24-hour consultation window (100 messages)",
   ],
 };

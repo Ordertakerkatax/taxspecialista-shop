@@ -79,7 +79,7 @@ export default function EscalationNotificationEmail({
               marginBottom: "16px",
             }}
           >
-            A consultation has been flagged for CPA review.
+            A consultation has been flagged for tax professional review.
           </Text>
 
           <Section style={{ marginBottom: "16px" }}>

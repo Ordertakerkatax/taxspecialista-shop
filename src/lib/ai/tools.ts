@@ -271,13 +271,13 @@ export function createDocumentTools(sessionToken: string) {
 export function createEscalationTools(sessionId: string, sessionEmail: string) {
   const assessComplexityTool = tool({
     description:
-      "Assess whether the current consultation involves complex factors that warrant CPA review. Call this AFTER completing the advisory response phase. Evaluate the case facts against the complexity criteria and return a structured assessment.",
+      "Assess whether the current consultation involves complex factors that warrant tax professional review. Call this AFTER completing the advisory response phase. Evaluate the case facts against the complexity criteria and return a structured assessment.",
     inputSchema: z.object({
       isComplex: z.boolean().describe("True if ANY complexity criterion is met"),
       summary: z
         .string()
         .describe(
-          "2-3 sentence case summary describing the taxpayer's situation, the BIR action, and the key issue — this is what the CPA will read first"
+          "2-3 sentence case summary describing the taxpayer's situation, the BIR action, and the key issue — this is what the tax professional will read first"
         ),
       largeTaxAmount: z
         .boolean()
@@ -335,7 +335,7 @@ export function createEscalationTools(sessionId: string, sessionEmail: string) {
         sessionEmail,
       });
 
-      return { escalated: true, message: "Case has been flagged for CPA review." };
+      return { escalated: true, message: "Case has been flagged for tax professional review." };
     },
   });
 

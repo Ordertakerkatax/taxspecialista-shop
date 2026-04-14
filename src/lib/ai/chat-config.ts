@@ -10,5 +10,5 @@ export function getAnthropic() {
 
 export const CHAT_MODEL = "claude-sonnet-4-5-20250929" as const;
 
-export const MAX_MESSAGES_BASIC = 50;
+export const MAX_MESSAGES_BASIC = 30;
 export const MAX_MESSAGES_COMPREHENSIVE = 100;

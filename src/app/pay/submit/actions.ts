@@ -72,7 +72,7 @@ export async function submitPaymentProof(
     } catch (e) {
       console.warn("[pay] Approval email skipped:", (e as Error).message);
     }
-    redirect(`/pay-submitted?email=${encodeURIComponent(parsed.data.email)}&auto=1`);
+    redirect(`/pay-submitted?email=${encodeURIComponent(parsed.data.email)}&tier=${parsed.data.tier}&auto=1`);
   }
 
   // Manual review path — notify admin
@@ -82,7 +82,7 @@ export async function submitPaymentProof(
     console.warn("[pay] Email notification skipped:", (e as Error).message);
   }
 
-  redirect(`/pay-submitted?email=${encodeURIComponent(parsed.data.email)}`);
+  redirect(`/pay-submitted?email=${encodeURIComponent(parsed.data.email)}&tier=${parsed.data.tier}`);
 }
 
 // --- Auto-approve logic ---
@@ -178,7 +178,8 @@ async function tryAutoApprove(
   // All checks passed — auto-approve
   const now = new Date();
   const sessionToken = randomUUID();
-  const expiresAt = new Date(now.getTime() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+  const tier = submission.tier as keyof typeof SESSION_EXPIRY_HOURS;
+  const expiresAt = new Date(now.getTime() + SESSION_EXPIRY_HOURS[tier] * 60 * 60 * 1000);
 
   await db
     .update(paymentSubmissions)

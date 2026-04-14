@@ -203,7 +203,7 @@ export function EscalationSection({ escalations }: EscalationSectionProps) {
       <div className="rounded-lg border bg-white p-12 text-center">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">No Escalated Cases</h3>
         <p className="text-gray-500">
-          Cases flagged for CPA review will appear here.
+          Cases flagged for tax professional review will appear here.
         </p>
       </div>
     );
