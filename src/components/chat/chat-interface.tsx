@@ -140,9 +140,16 @@ export function ChatInterface({
 
         {error && (
           <div className="text-center">
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 inline-block">
-              {error.message || "Something went wrong. Please try again."}
-            </p>
+            <div className="text-sm bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 inline-block max-w-md">
+              <p className="text-amber-800 font-medium">We're experiencing a temporary service issue</p>
+              <p className="text-amber-700 mt-1">
+                Our AI advisory service is temporarily unavailable. Your session and any previous messages are saved.
+                Please wait a moment and try sending your message again.
+              </p>
+              <p className="text-amber-600 text-xs mt-2">
+                If this persists, please contact us at support@taxspecialista.com
+              </p>
+            </div>
           </div>
         )}
       </div>
