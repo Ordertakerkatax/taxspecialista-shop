@@ -117,18 +117,6 @@ async function tryAutoApprove(
   }
 
   // 3. Reference number must not be a duplicate (excluding this submission)
-  const [duplicate] = await db
-    .select({ id: paymentSubmissions.id })
-    .from(paymentSubmissions)
-    .where(
-      and(
-        eq(paymentSubmissions.referenceNumber, submission.referenceNumber),
-        eq(paymentSubmissions.paymentMethod, submission.paymentMethod)
-      )
-    )
-    .limit(2);
-
-  // If we find more than just the current submission with this ref, it's a duplicate
   const duplicateCheck = await db
     .select({ id: paymentSubmissions.id })
     .from(paymentSubmissions)
@@ -139,6 +127,8 @@ async function tryAutoApprove(
       )
     );
 
+  // If we find more than just the current submission with this ref, it's a duplicate.
+  // Note: the current submission is already inserted, so length > 1 means duplicate.
   if (duplicateCheck.length > 1) {
     return { approved: false, reason: "duplicate_ref" };
   }

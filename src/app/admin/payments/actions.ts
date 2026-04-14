@@ -8,12 +8,25 @@ import { sendPaymentApprovedEmail, sendPaymentRejectedEmail } from "@/lib/email"
 import { SESSION_EXPIRY_HOURS } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { updateEscalationStatus } from "@/lib/escalation";
 
-export async function approvePayment(paymentId: string) {
-  // Verify admin auth server-side (defense in depth beyond middleware)
+const ADMIN_EMAILS = ["esm.taxconsultant@kataxpayer.com"];
+
+async function requireAdmin() {
   const session = await auth();
   if (!session.userId) throw new Error("Unauthorized");
+  const client = await clerkClient();
+  const user = await client.users.getUser(session.userId);
+  const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase() ?? "";
+  const extraAdmins = (process.env.ADMIN_EMAILS ?? "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+  const allAdmins = [...ADMIN_EMAILS, ...extraAdmins];
+  if (!allAdmins.includes(userEmail)) throw new Error("Forbidden: not an admin");
+  return session;
+}
+
+export async function approvePayment(paymentId: string) {
+  await requireAdmin();
 
   const sessionToken = randomUUID();
   const activatedAt = new Date();
@@ -52,8 +65,7 @@ export async function approvePayment(paymentId: string) {
 }
 
 export async function rejectPayment(paymentId: string, reason: string) {
-  const session = await auth();
-  if (!session.userId) throw new Error("Unauthorized");
+  await requireAdmin();
 
   const [payment] = await db.update(paymentSubmissions)
     .set({
@@ -85,8 +97,7 @@ export async function updateEscalation(
   status: "reviewed" | "resolved",
   reviewerNotes?: string
 ) {
-  const session = await auth();
-  if (!session.userId) throw new Error("Unauthorized");
+  await requireAdmin();
 
   await updateEscalationStatus(escalationId, status, reviewerNotes);
 

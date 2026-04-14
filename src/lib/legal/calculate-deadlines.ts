@@ -100,9 +100,9 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
     });
   }
 
-  // PAN 30-day protest period — starts from panReceiptDate
+  // PAN 15-day reply period — starts from panReceiptDate (NIRC Section 228)
   if (panReceiptDate) {
-    const dueDate = addDays(panReceiptDate, 30);
+    const dueDate = addDays(panReceiptDate, 15);
     const daysRemaining = daysUntil(dueDate);
     const isOverdue = daysRemaining < 0;
     deadlines.push({
@@ -110,7 +110,7 @@ export function calculateDeadlines(input: DeadlineInput): DeadlineResult {
       dueDate,
       daysRemaining,
       legalBasis:
-        "Taxpayer must reply to the Preliminary Assessment Notice within 15 days of receipt. Filing a protest within 30 days is required to contest the assessment per NIRC Section 228 / RR 12-99.",
+        "Taxpayer must file a reply to the Preliminary Assessment Notice within 15 days of receipt per NIRC Section 228.",
       isOverdue,
     });
   }

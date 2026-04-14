@@ -1,22 +1,11 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 
 export function getAnthropic() {
-  // dotenv workaround: Next.js 16 Turbopack doesn't inject .env.local into process.env for route handlers
-  let key = process.env.ANTHROPIC_API_KEY;
+  const key = process.env.ANTHROPIC_API_KEY;
   if (!key) {
-    try {
-      const fs = require("fs");
-      const path = require("path");
-      const envPath = path.join(process.cwd(), ".env.local");
-      const content = fs.readFileSync(envPath, "utf8");
-      const match = content.match(/^ANTHROPIC_API_KEY=(.+)$/m);
-      if (match) key = match[1].trim();
-    } catch {}
+    throw new Error("ANTHROPIC_API_KEY environment variable is not set");
   }
-  return createAnthropic({
-    apiKey: key!,
-    baseURL: "https://api.anthropic.com/v1",
-  });
+  return createAnthropic({ apiKey: key });
 }
 
 export const CHAT_MODEL = "claude-sonnet-4-5-20250929" as const;

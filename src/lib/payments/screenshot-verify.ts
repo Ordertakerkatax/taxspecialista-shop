@@ -36,6 +36,21 @@ export async function verifyScreenshot(opts: {
   expectedAmountPhp: number;
   paymentMethod: string;
 }): Promise<ScreenshotVerifyResult> {
+  // SSRF protection: only allow HTTPS URLs from known upload hosts
+  try {
+    const url = new URL(opts.screenshotUrl);
+    if (url.protocol !== "https:") {
+      return { verified: false, reason: "invalid_screenshot_url" };
+    }
+    // Block internal/metadata endpoints
+    const blockedHosts = ["169.254.169.254", "metadata.google.internal", "localhost", "127.0.0.1", "0.0.0.0"];
+    if (blockedHosts.includes(url.hostname)) {
+      return { verified: false, reason: "invalid_screenshot_url" };
+    }
+  } catch {
+    return { verified: false, reason: "invalid_screenshot_url" };
+  }
+
   try {
     const { object } = await generateObject({
       model: anthropic("claude-haiku-4-5-20251001"),

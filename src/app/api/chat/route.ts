@@ -29,6 +29,13 @@ export async function POST(req: Request) {
     });
   }
 
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return new Response(JSON.stringify({ error: "Messages array required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const sessionResult = await validateSession(sessionToken);
 
   if (sessionResult.reason === "not_found") {
@@ -100,18 +107,22 @@ export async function POST(req: Request) {
       },
       stopWhen: stepCountIs(5),
       onFinish: async ({ text }) => {
-        await db.insert(chatMessages).values({
-          sessionId: session.id,
-          role: "assistant",
-          content: text,
-        });
+        try {
+          await db.insert(chatMessages).values({
+            sessionId: session.id,
+            role: "assistant",
+            content: text,
+          });
+        } catch (err) {
+          console.error("[chat] Failed to persist assistant message:", err);
+        }
       },
     });
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("[chat] Error:", error);
-    return new Response(JSON.stringify({ error: String(error) }), {
+    return new Response(JSON.stringify({ error: "An error occurred processing your request" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

@@ -36,18 +36,34 @@ const REQUIRED_FIELDS: (keyof LetterContent)[] = [
   "citations",
 ];
 
+const VALID_LETTER_TYPES = ["protest", "compliance", "nod-response", "acknowledgment"];
+const MAX_BODY_PARAGRAPHS = 50;
+const MAX_PARAGRAPH_LENGTH = 5000;
+const MAX_STRING_FIELD_LENGTH = 500;
+const MAX_PRAYER_LENGTH = 3000;
+const MAX_CITATIONS = 20;
+
 function isValidLetterContent(obj: unknown): obj is LetterContent {
   if (!obj || typeof obj !== "object") return false;
   const record = obj as Record<string, unknown>;
   for (const field of REQUIRED_FIELDS) {
     if (!(field in record)) return false;
   }
-  // bodyParagraphs must be an array
+  // letterType must be a known type
+  if (!VALID_LETTER_TYPES.includes(record.letterType as string)) return false;
+  // bodyParagraphs: array with size and content limits
   if (!Array.isArray(record.bodyParagraphs)) return false;
-  // letterType must be protest, compliance, or acknowledgment
-  if (record.letterType !== "protest" && record.letterType !== "compliance" && record.letterType !== "acknowledgment") {
-    return false;
+  if (record.bodyParagraphs.length > MAX_BODY_PARAGRAPHS) return false;
+  for (const p of record.bodyParagraphs) {
+    if (typeof p !== "string" || p.length > MAX_PARAGRAPH_LENGTH) return false;
   }
+  // String field length limits
+  if (typeof record.signatoryName === "string" && record.signatoryName.length > MAX_STRING_FIELD_LENGTH) return false;
+  if (typeof record.addresseeName === "string" && record.addresseeName.length > MAX_STRING_FIELD_LENGTH) return false;
+  if (typeof record.subjectLine === "string" && record.subjectLine.length > MAX_STRING_FIELD_LENGTH) return false;
+  if (typeof record.prayer === "string" && (record.prayer as string).length > MAX_PRAYER_LENGTH) return false;
+  // Citations: array with size limit
+  if (Array.isArray(record.citations) && record.citations.length > MAX_CITATIONS) return false;
   return true;
 }
 

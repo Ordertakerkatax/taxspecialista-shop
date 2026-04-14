@@ -30,10 +30,12 @@ const CONSENT_ITEMS = [
 export function ConsentGate({ sessionToken, onConsented }: ConsentGateProps) {
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleAccept() {
     if (!accepted) return;
     setSubmitting(true);
+    setError(null);
 
     try {
       const res = await fetch("/api/consent", {
@@ -45,13 +47,11 @@ export function ConsentGate({ sessionToken, onConsented }: ConsentGateProps) {
       if (res.ok) {
         onConsented();
       } else {
-        console.error("[consent] Failed to record consent");
-        // Still allow proceeding — consent is best-effort stored
-        onConsented();
+        setError("Failed to record your consent. Please try again.");
       }
     } catch (err) {
       console.error("[consent] Error:", err);
-      onConsented();
+      setError("A network error occurred. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -100,6 +100,10 @@ export function ConsentGate({ sessionToken, onConsented }: ConsentGateProps) {
               draft document as my own releases the service provider from liability.
             </span>
           </label>
+
+          {error && (
+            <p className="text-sm text-red-600 mt-2">{error}</p>
+          )}
 
           <Button
             onClick={handleAccept}

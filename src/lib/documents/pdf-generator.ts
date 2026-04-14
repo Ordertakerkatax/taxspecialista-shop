@@ -184,7 +184,7 @@ export async function letterToPdf(content: LetterContent): Promise<Buffer> {
       // bufferPages: true allows iterating all pages after rendering to add watermarks
       bufferPages: true,
       info: {
-        Title: `Draft ${content.letterType === "protest" ? "Protest" : "Compliance Reply"} Letter`,
+        Title: `Draft ${{ protest: "Protest", compliance: "Compliance Reply", "nod-response": "NOD Response", acknowledgment: "Acknowledgment" }[content.letterType] ?? "Legal"} Letter`,
         Author: content.signatoryName,
         Subject: content.subjectLine,
         Creator: "BIR Advisory Chatbot — TaxSpecialista",
