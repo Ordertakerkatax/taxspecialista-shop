@@ -15,6 +15,7 @@
     "@clerk/nextjs": "^7.0.12",
     "@neondatabase/serverless": "^1.0.2",
     "@react-email/components": "^1.0.11",
+    "@react-email/render": "^2.0.6",
     "@tailwindcss/typography": "^0.5.19",
     "@uploadthing/react": "^7.3.3",
     "ai": "^6.0.154",
