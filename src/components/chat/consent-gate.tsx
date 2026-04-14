@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, AlertTriangle, FileText } from "lucide-react";
+import { Shield, AlertTriangle, FileText, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ConsentGateProps {
@@ -24,6 +24,11 @@ const CONSENT_ITEMS = [
     icon: FileText,
     title: "Use of Draft Documents",
     text: "Any draft letters or documents generated during this consultation carry a DRAFT watermark and are intended for review purposes only. By filing or submitting any draft document as your own, you accept full responsibility for its contents and release TaxSpecialista Consult, ETM Tax Agent Office, and the AI consultation service from any liability arising from its use.",
+  },
+  {
+    icon: Database,
+    title: "Data Storage and Privacy",
+    text: "Your chat messages, consultation details, and any information you provide (including TIN, amounts, and dates) are stored securely to deliver and improve this service. Chat data is retained for 90 days from your session date, after which it is permanently deleted. Payment records are retained for 3 years per Philippine tax regulations. If your case is flagged as complex, a summary may be shared with a licensed tax professional for follow-up. You may request data deletion at any time by contacting support@taxspecialista.com. See our Privacy Policy for full details.",
   },
 ] as const;
 
