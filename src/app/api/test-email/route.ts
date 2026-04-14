@@ -1,14 +1,17 @@
 import { NextRequest } from "next/server";
 import { Resend } from "resend";
+import PaymentApprovedEmail from "@/emails/payment-approved";
 
 /**
  * Temporary debug endpoint to test Resend email delivery.
  * DELETE THIS FILE after confirming email works.
  *
- * Usage: GET /api/test-email?to=your@email.com
+ * Test 1 (plain HTML):  GET /api/test-email?to=your@email.com
+ * Test 2 (React email): GET /api/test-email?to=your@email.com&react=1
  */
 export async function GET(request: NextRequest) {
   const to = request.nextUrl.searchParams.get("to");
+  const useReact = request.nextUrl.searchParams.get("react");
 
   if (!to) {
     return Response.json({ error: "Pass ?to=your@email.com" }, { status: 400 });
@@ -22,6 +25,21 @@ export async function GET(request: NextRequest) {
   const resend = new Resend(apiKey);
 
   try {
+    if (useReact) {
+      // Test with the actual React email template (same as approval flow)
+      const result = await resend.emails.send({
+        from: "TaxSpecialista Consult <noreply@taxspecialista.com>",
+        to,
+        subject: "TaxSpecialista React Email Test",
+        react: PaymentApprovedEmail({
+          consultUrl: "https://consult.taxspecialista.com/consult/test-session",
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        }),
+      });
+      return Response.json({ success: true, mode: "react", result });
+    }
+
+    // Test with plain HTML
     const result = await resend.emails.send({
       from: "TaxSpecialista Consult <noreply@taxspecialista.com>",
       to,
@@ -29,7 +47,7 @@ export async function GET(request: NextRequest) {
       html: "<p>If you see this, Resend is working correctly.</p>",
     });
 
-    return Response.json({ success: true, result });
+    return Response.json({ success: true, mode: "html", result });
   } catch (e) {
     return Response.json({
       success: false,
