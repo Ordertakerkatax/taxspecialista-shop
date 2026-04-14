@@ -81,11 +81,24 @@ export function ChatInterface({
             {tier === "comprehensive" ? "Comprehensive" : "Basic"}
           </Badge>
         </div>
-        {readOnly && (
-          <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
-            Read Only
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {!readOnly && (() => {
+            const maxMessages = tier === "comprehensive" ? 100 : 50;
+            const used = messages.length;
+            const remaining = Math.max(0, maxMessages - used);
+            const lowCredits = remaining <= Math.floor(maxMessages * 0.2);
+            return (
+              <span className={`text-xs ${lowCredits ? "text-amber-600 font-medium" : "text-gray-400"}`}>
+                {remaining}/{maxMessages} remaining
+              </span>
+            );
+          })()}
+          {readOnly && (
+            <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
+              Read Only
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
