@@ -69,6 +69,7 @@ export default async function ConsultPage({ params }: ConsultPageProps) {
             sessionToken={sessionId}
             sessionId={session.id}
             tier={session.tier as "basic" | "comprehensive"}
+            expiresAt={session.expiresAt.toISOString()}
             initialMessages={existingMessages.map((m) => ({
               id: m.id,
               role: m.role as "user" | "assistant",
