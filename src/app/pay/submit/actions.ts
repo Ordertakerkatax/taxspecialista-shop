@@ -149,23 +149,30 @@ async function tryAutoApprove(
     return { approved: false, reason: "rate_limited" };
   }
 
-  // 5. Vision check: if screenshot provided, verify ref and amount via OCR
-  if (submission.screenshotUrl) {
-    const vision = await verifyScreenshot({
-      screenshotUrl: submission.screenshotUrl,
-      expectedRef: submission.referenceNumber,
-      expectedAmountPhp: expectedAmount,
-      paymentMethod: submission.paymentMethod,
-    });
+  // 5. Screenshot is REQUIRED for auto-approve — no screenshot means manual review
+  if (!submission.screenshotUrl) {
+    return { approved: false, reason: "no_screenshot" };
+  }
 
-    if (!vision.verified) {
-      // Vision failed (API error etc.) — fall back to manual review
-      return { approved: false, reason: "vision_check_failed" };
-    }
+  // 6. Vision check: verify ref and amount via OCR
+  const vision = await verifyScreenshot({
+    screenshotUrl: submission.screenshotUrl,
+    expectedRef: submission.referenceNumber,
+    expectedAmountPhp: expectedAmount,
+    paymentMethod: submission.paymentMethod,
+  });
 
-    if (vision.confidence === "low" || !vision.refMatch) {
-      return { approved: false, reason: "screenshot_mismatch" };
-    }
+  if (!vision.verified) {
+    // Vision API error — fall back to manual review
+    return { approved: false, reason: "vision_check_failed" };
+  }
+
+  if (vision.confidence === "low" || !vision.refMatch) {
+    return { approved: false, reason: "screenshot_mismatch" };
+  }
+
+  if (!vision.amountMatch) {
+    return { approved: false, reason: "amount_mismatch_screenshot" };
   }
 
   // All checks passed — auto-approve
