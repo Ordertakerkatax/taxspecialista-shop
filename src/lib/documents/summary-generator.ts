@@ -1,4 +1,4 @@
-import PDFDocument from "pdfkit";
+// PDFKit loaded lazily via dynamic import() inside summaryToPdf() — see pdf-generator.ts
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
@@ -94,6 +94,8 @@ async function extractSummaryFromMessages(
  * No DRAFT watermark — summaries are final documents, unlike draft letters.
  */
 async function summaryToPdf(summary: ConsultationSummary): Promise<Buffer> {
+  const PDFDocument = (await import("pdfkit")).default;
+
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
 

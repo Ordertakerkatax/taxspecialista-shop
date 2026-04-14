@@ -3,7 +3,8 @@ import { db } from "@/db";
 import { consultationSessions, chatMessages } from "@/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { NextRequest } from "next/server";
-import PDFDocument from "pdfkit";
+// PDFKit loaded lazily via dynamic import() inside generateTranscriptPdf()
+// Static imports crash Vercel serverless functions — see pdf-generator.ts
 
 export const runtime = "nodejs";
 
@@ -26,6 +27,8 @@ async function generateTranscriptPdf(
   tier: string,
   activatedAt: Date
 ): Promise<Buffer> {
+  const PDFDocument = (await import("pdfkit")).default;
+
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
 

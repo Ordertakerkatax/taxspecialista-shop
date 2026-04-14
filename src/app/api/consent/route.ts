@@ -28,6 +28,10 @@ export async function POST(req: Request) {
 
   const result = await validateSession(sessionToken);
 
+  if (result.reason === "db_error") {
+    return Response.json({ error: "Temporary service issue. Please try again." }, { status: 503 });
+  }
+
   if (result.reason === "not_found") {
     return Response.json({ error: "Invalid session" }, { status: 403 });
   }

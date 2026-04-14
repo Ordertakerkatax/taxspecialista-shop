@@ -1,4 +1,7 @@
-import PDFDocument from "pdfkit";
+// PDFKit is loaded lazily via dynamic import() inside letterToPdf().
+// Static imports of PDFKit crash Vercel serverless functions at module init
+// because PDFKit's font data files (.afm) can't be resolved by the bundler,
+// causing the entire function to fail to register (404 instead of 500).
 import { addDraftWatermark } from "./watermark";
 import type { LetterContent } from "./letter-types";
 
@@ -170,6 +173,9 @@ function renderLetterContent(
  * Uses PDFKit with bufferPages: true to enable post-render watermarking.
  */
 export async function letterToPdf(content: LetterContent): Promise<Buffer> {
+  // Dynamic import — avoids crashing the serverless function at module init
+  const PDFDocument = (await import("pdfkit")).default;
+
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
 

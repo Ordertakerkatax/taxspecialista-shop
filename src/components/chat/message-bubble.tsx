@@ -41,8 +41,27 @@ export function MessageBubble({ role, content, isStreaming }: MessageBubbleProps
         {isUser ? (
           <div className="whitespace-pre-wrap break-words">{bodyText}</div>
         ) : (
-          <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-1 prose-p:my-1.5 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-gray-900 prose-hr:my-2 [&_sup]:text-teal-600 [&_sup]:font-semibold [&_sup]:cursor-help">
-            <ReactMarkdown>{isStreaming ? cleanStreamingMarkdown(bodyText) : bodyText}</ReactMarkdown>
+          <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-1 prose-p:my-1.5 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-gray-900 prose-hr:my-2 [&_sup]:text-teal-600 [&_sup]:font-semibold [&_sup]:cursor-help prose-a:text-teal-600 prose-a:underline prose-a:font-medium">
+            <ReactMarkdown
+              components={{
+                a: ({ href, children, ...props }) => {
+                  // Document download links open in new tab to avoid navigating away from chat
+                  const isDownload = href?.startsWith("/api/documents/");
+                  return (
+                    <a
+                      href={href}
+                      target={isDownload ? "_blank" : undefined}
+                      rel={isDownload ? "noopener noreferrer" : undefined}
+                      {...props}
+                    >
+                      {children}
+                    </a>
+                  );
+                },
+              }}
+            >
+              {isStreaming ? cleanStreamingMarkdown(bodyText) : bodyText}
+            </ReactMarkdown>
           </div>
         )}
         {isStreaming && (

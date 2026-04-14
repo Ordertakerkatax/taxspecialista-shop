@@ -92,6 +92,13 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  if (sessionResult.reason === "db_error") {
+    return Response.json(
+      { error: "Temporary service issue. Please try again in a moment." },
+      { status: 503 }
+    );
+  }
+
   if (sessionResult.reason === "not_found") {
     return Response.json({ error: "Invalid session" }, { status: 403 });
   }
@@ -115,7 +122,9 @@ export async function GET(request: NextRequest) {
 
   // Generate the PDF (T-04-03: generic error on failure)
   try {
+    console.log("[documents] Starting PDF generation for letterType:", letterContent.letterType);
     const pdfBuffer = await letterToPdf(letterContent);
+    console.log("[documents] PDF generated successfully, size:", pdfBuffer.length, "bytes");
     const filenameMap: Record<string, string> = {
       protest: "draft-protest-letter.pdf",
       compliance: "draft-compliance-letter.pdf",
@@ -136,7 +145,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (e) {
     // Log the actual error for debugging (visible in Vercel function logs)
-    console.error("[documents] PDF generation error:", e);
+    const err = e as Error;
+    console.error("[documents] PDF generation error:", err.message);
+    console.error("[documents] PDF error stack:", err.stack);
     // Generic error — do not expose stack traces or internal paths (T-04-03)
     return Response.json(
       { error: "Failed to generate document" },
